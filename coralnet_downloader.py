@@ -3,12 +3,17 @@ import re
 import requests
 import pandas as pd
 
+ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), ".."))
+DATA_DIR = os.path.join(ROOT_DIR, "data")
+IMAGE_DIR = os.path.join(ROOT_DIR, "images")
+
+percent_covers_path = os.path.join(DATA_DIR, "coralnet_source_2091_percent_covers.csv")
 # Create 'images' folder if it doesn't exist
 if not os.path.exists('images'):
     os.makedirs('images')
 
 # Read the annotations CSV
-annotations = pd.read_csv(r"C:\Users\xleong\OneDrive - Intel Corporation\Desktop\coral-sleuth\data\coralnet_source_2091_percent_covers.csv")
+annotations = pd.read_csv(percent_covers_path)
 image_list = annotations['Image name'].drop_duplicates()
 
 # Extract Image IDs from the CSV
