@@ -4,6 +4,8 @@ import os
 
 IMAGE_DIR = r"C:\Users\ad_xleong\Desktop\coral-sleuth\images"
 
+# To count number of images using powershell
+# (Get-ChildItem -Recurse -Include *.jpg, *.png | Measure-Object).Count
 
 def check_images(directory):
     for filename in os.listdir(directory):
