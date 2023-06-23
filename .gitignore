@@ -1,5 +1,13 @@
-/images/*.jpg
-/images/*.png
-/images/*.txt
+# .gitignore
+
+# Ignore all .jpg, .png, .txt and .zip files
+*.jpg
+*.png
+*.txt
 *.zip
+
+# Ignore all .h5 files
 *.h5
+
+# But don't ignore .h5 files in the data directory
+!/data/*.h5
