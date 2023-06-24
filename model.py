@@ -2,9 +2,12 @@ import os
 import numpy as np
 import csv
 from keras.models import Model
+from keras.metrics import Precision, Recall, AUC
+
 from keras.layers import Dense, GlobalAveragePooling2D, Conv2D, Flatten, concatenate, Input, MaxPooling2D
 from keras.utils import to_categorical
 from keras.applications import EfficientNetB0, VGG16, ResNet50
+
 from PIL import Image
 
 class CoralReefClassifier:
@@ -21,6 +24,8 @@ class CoralReefClassifier:
         self.model = None
 
         self.efficientnet_b0_weight = os.path.join(self.data_dir, "efficientnetb0_notop.h5")
+        self.efficientnet_vgg16_weight = os.path.join(self.data_dir, "vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5")
+        self.efficientnet_resnet50_weight = os.path.join(self.data_dir, "resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5")
 
         self.load_data()
 
@@ -69,7 +74,11 @@ class CoralReefClassifier:
                     except Exception as e:
                         print(f'Error processing image {image_path}: {e}')
                         continue
-                    
+
+                if len(batch_images) == 0:  # If the batch_images list is empty, print the problematic image paths and skip to the next iteration
+                    print(f'Skipping a batch at index {i}. All image paths in this batch were problematic: {batch_image_paths}')
+                    continue
+                
                 batch_images = np.array(batch_images, dtype=np.float32) / 255.0
                 yield [batch_images, np.column_stack((batch_x_pos, batch_y_pos))], batch_labels
 
@@ -84,11 +93,13 @@ class CoralReefClassifier:
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
         elif self.model_type == "vgg16":
-            base_model = VGG16(weights='imagenet', include_top=False)
+            base_model = VGG16(weights=self.efficientnet_vgg16_weight, include_top=False)
             x = base_model(image_input)
+            x = GlobalAveragePooling2D()(x)
         elif self.model_type == "resnet50":
-            base_model = ResNet50(weights='imagenet', include_top=False)
+            base_model = ResNet50(weights=self.efficientnet_resnet50_weight, include_top=False)
             x = base_model(image_input)
+            x = GlobalAveragePooling2D()(x)
         elif self.model_type == "custom":
             x = Conv2D(16, (3, 3), activation='relu')(image_input)
             x = MaxPooling2D()(x)
@@ -104,7 +115,11 @@ class CoralReefClassifier:
         self.model = Model(inputs=[image_input, pos_input], outputs=output)
 
 
-        self.model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        self.model.compile(
+            optimizer='adam', 
+            loss='categorical_crossentropy', 
+            metrics=['accuracy', Precision(), Recall(), AUC()]
+        )
 
 
     def train(self, batch_size, epochs):
@@ -129,8 +144,25 @@ if __name__ == "__main__":
     DATA_DIR = os.path.join(ROOT_DIR, "data")
     IMAGE_DIR = os.path.join(ROOT_DIR, "images")
 
-    annotation_file = os.path.join(DATA_DIR, "combined_annotations_1000k.csv")
+    annotation_file = os.path.join(DATA_DIR, "combined_annotations_about_40k.csv")
+
     classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_file, model_type='efficientnet')
     classifier.create_model()
-    classifier.train(batch_size=32, epochs=50)
-    classifier.save_model('coral_reef_classifier_efficientnet_epoch_50_batchsize_32.h5')
+    classifier.train(batch_size=32, epochs=1)
+    classifier.save_model('coral_reef_classifier_efficientnet_b0_full_epoch_1_batchsize_32.h5')
+
+    classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_file, model_type='vgg16')
+    classifier.create_model()
+    classifier.train(batch_size=32, epochs=1)
+    classifier.save_model('coral_reef_classifier_vgg16_full_epoch_1_batchsize_32.h5')
+
+
+    classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_file, model_type='resnet50')
+    classifier.create_model()
+    classifier.train(batch_size=32, epochs=1)
+    classifier.save_model('coral_reef_classifier_resnet50_full_epoch_1_batchsize_32.h5')
+
+    classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_file, model_type='custom')
+    classifier.create_model()
+    classifier.train(batch_size=32, epochs=1)
+    classifier.save_model('coral_reef_classifier_custom_full_epoch_1_batchsize_32.h5')
