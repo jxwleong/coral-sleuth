@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import csv
+import json 
 from keras.models import Model
 from keras.metrics import Precision, Recall, AUC
 
@@ -24,8 +25,8 @@ class CoralReefClassifier:
         self.model = None
 
         self.efficientnet_b0_weight = os.path.join(self.data_dir, "efficientnetb0_notop.h5")
-        self.efficientnet_vgg16_weight = os.path.join(self.data_dir, "vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5")
-        self.efficientnet_resnet50_weight = os.path.join(self.data_dir, "resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5")
+        self.vgg16_weight = os.path.join(self.data_dir, "vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5")
+        self.resnet50_weight = os.path.join(self.data_dir, "resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5")
 
         self.load_data()
 
@@ -93,11 +94,11 @@ class CoralReefClassifier:
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
         elif self.model_type == "vgg16":
-            base_model = VGG16(weights=self.efficientnet_vgg16_weight, include_top=False)
+            base_model = VGG16(weights=self.vgg16_weight, include_top=False)
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
         elif self.model_type == "resnet50":
-            base_model = ResNet50(weights=self.efficientnet_resnet50_weight, include_top=False)
+            base_model = ResNet50(weights=self.resnet50_weight, include_top=False)
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
         elif self.model_type == "custom":
@@ -138,6 +139,15 @@ class CoralReefClassifier:
 
         self.model.save(model_file)
 
+    def get_evaluation_metrics(self):
+        if self.model is None:
+            print("No model defined.")
+            return {}
+
+        metrics = self.model.evaluate(self.data_generator(len(self.image_paths)), steps=1, verbose=0)
+        metrics_dict = {name: value for name, value in zip(self.model.metrics_names, metrics)}
+        return metrics_dict
+
 
 if __name__ == "__main__":
     ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), ".."))
@@ -146,23 +156,20 @@ if __name__ == "__main__":
 
     annotation_file = os.path.join(DATA_DIR, "combined_annotations_about_40k.csv")
 
-    classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_file, model_type='efficientnet')
-    classifier.create_model()
-    classifier.train(batch_size=32, epochs=1)
-    classifier.save_model('coral_reef_classifier_efficientnet_b0_full_epoch_1_batchsize_32.h5')
+   
+    # for each classifier
+    for model_type in ['efficientnet', 'vgg16', 'resnet50', 'custom']:
+        classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_file, model_type)
+        classifier.create_model()
+        classifier.train(batch_size=32, epochs=1)
 
-    classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_file, model_type='vgg16')
-    classifier.create_model()
-    classifier.train(batch_size=32, epochs=1)
-    classifier.save_model('coral_reef_classifier_vgg16_full_epoch_1_batchsize_32.h5')
+        model_file = f'coral_reef_classifier_{model_type}_full_epoch_1_batchsize_32.h5'
+        classifier.save_model(model_file)
 
+        # Get metrics
+        metrics = classifier.get_evaluation_metrics()
 
-    classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_file, model_type='resnet50')
-    classifier.create_model()
-    classifier.train(batch_size=32, epochs=1)
-    classifier.save_model('coral_reef_classifier_resnet50_full_epoch_1_batchsize_32.h5')
-
-    classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_file, model_type='custom')
-    classifier.create_model()
-    classifier.train(batch_size=32, epochs=1)
-    classifier.save_model('coral_reef_classifier_custom_full_epoch_1_batchsize_32.h5')
+        # Save metrics to a JSON file
+        metrics_file = f'coral_reef_classifier_{model_type}_metrics.json'
+        with open(metrics_file, 'w') as f:
+            json.dump(metrics, f, indent=4)
