@@ -1,4 +1,5 @@
 # .gitignore
+__pycache__/
 
 # Ignore all .jpg, .png, .txt and .zip files
 *.jpg
