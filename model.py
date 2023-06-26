@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import csv
+import cv2
 import json 
 from keras.models import Model
 from keras.metrics import Precision, Recall, AUC
@@ -68,8 +69,9 @@ class CoralReefClassifier:
                 batch_images = []
                 for image_path in batch_image_paths:
                     try:
-                        image = Image.open(image_path).convert('RGB')
-                        image = image.resize((224, 224))
+                        image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+                        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                        image = cv2.resize(image, (224, 224))  # Make sure all images are resized to (224, 224)
                         image = np.array(image)
                         batch_images.append(image)
                     except Exception as e:
@@ -93,19 +95,23 @@ class CoralReefClassifier:
             base_model = EfficientNetB0(weights=self.efficientnet_b0_weight, include_top=False)
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
+            y = Dense(1280, activation='relu')(pos_input)
         elif self.model_type == "vgg16":
             base_model = VGG16(weights=self.vgg16_weight, include_top=False)
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
+            y = Dense(512, activation='relu')(pos_input)
         elif self.model_type == "resnet50":
             base_model = ResNet50(weights=self.resnet50_weight, include_top=False)
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
+            y = Dense(2048, activation='relu')(pos_input)
         elif self.model_type == "custom":
             x = Conv2D(16, (3, 3), activation='relu')(image_input)
             x = MaxPooling2D()(x)
             x = Conv2D(32, (3, 3), activation='relu')(x)
             x = GlobalAveragePooling2D()(x)
+            y = Dense(32, activation='relu')(pos_input)
         else:
             raise ValueError('Invalid model type')
 
@@ -139,12 +145,13 @@ class CoralReefClassifier:
 
         self.model.save(model_file)
 
-    def get_evaluation_metrics(self):
+    def get_evaluation_metrics(self, batch_size):
         if self.model is None:
             print("No model defined.")
             return {}
 
-        metrics = self.model.evaluate(self.data_generator(len(self.image_paths)), steps=1, verbose=0)
+        steps = len(self.image_paths) // batch_size
+        metrics = self.model.evaluate(self.data_generator(batch_size), steps=steps, verbose=0)
         metrics_dict = {name: value for name, value in zip(self.model.metrics_names, metrics)}
         return metrics_dict
 
@@ -156,20 +163,30 @@ if __name__ == "__main__":
 
     annotation_file = os.path.join(DATA_DIR, "combined_annotations_about_40k.csv")
 
+    batch_size = 16
+    epoch = 1
    
     # for each classifier
     for model_type in ['efficientnet', 'vgg16', 'resnet50', 'custom']:
         classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_file, model_type)
         classifier.create_model()
-        classifier.train(batch_size=32, epochs=1)
+        print(f"Start model({model_type}) training...")
+        classifier.train(batch_size=batch_size, epochs=epoch)
 
-        model_file = f'coral_reef_classifier_{model_type}_full_epoch_1_batchsize_32.h5'
+        print(f"Training model({model_type}) DONE!")
+        model_file = f'coral_reef_classifier_{model_type}_full_{epoch}_1_batchsize_{batch_size}.h5'
         classifier.save_model(model_file)
 
+        print(f"{model_file} SAVED!")
+
+        print("Evaluating the model now...")
         # Get metrics
-        metrics = classifier.get_evaluation_metrics()
+        metrics = classifier.get_evaluation_metrics(batch_size=batch_size)
+        
 
         # Save metrics to a JSON file
         metrics_file = f'coral_reef_classifier_{model_type}_metrics.json'
         with open(metrics_file, 'w') as f:
             json.dump(metrics, f, indent=4)
+
+        print(f"Evaluation metrics saved: {metrics_file}")
