@@ -28,3 +28,4 @@ for filename in os.listdir(dir_path):
                     # append to csv
                     writer.writerow([image_name] + row_col_label)
 
+
