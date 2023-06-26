@@ -3,13 +3,13 @@ import numpy as np
 import csv
 import cv2
 import json 
+import time 
+
 from keras.models import Model
 from keras.metrics import Precision, Recall, AUC
-
 from keras.layers import Dense, GlobalAveragePooling2D, Conv2D, Flatten, concatenate, Input, MaxPooling2D
 from keras.utils import to_categorical
 from keras.applications import EfficientNetB0, VGG16, ResNet50
-
 from PIL import Image
 
 import sys
@@ -143,7 +143,12 @@ class CoralReefClassifier:
 
         steps_per_epoch = len(self.image_paths) // batch_size
         self.model.summary()
+        self.start_time = time.time() 
         self.model.fit(self.data_generator(batch_size), steps_per_epoch=steps_per_epoch, epochs=epochs)
+        self.end_time = time.time() 
+
+        self.training_time = self.end_time - self.start_time  # Compute the training time
+        print(f'Training time: {self.training_time} seconds')
 
     def save_model(self, model_file):
         if self.model is None:
@@ -179,7 +184,7 @@ if __name__ == "__main__":
         classifier.train(batch_size=batch_size, epochs=epoch)
 
         print(f"Training model({model_type}) DONE!")
-        model_file = os.path.join(MODEL_DIR, f'coral_reef_classifier_{model_type}_full_{epoch}_1_batchsize_{batch_size}.h5')
+        model_file = os.path.join(MODEL_DIR, f'coral_reef_classifier_{model_type}_full_epoch_{epoch}_1_batchsize_{batch_size}.h5')
         classifier.save_model(model_file)
 
         print(f"{model_file} SAVED!")
@@ -187,7 +192,9 @@ if __name__ == "__main__":
         print("Evaluating the model now...")
         # Get metrics
         metrics = classifier.get_evaluation_metrics(batch_size=batch_size)
-        
+
+        # Make sure already run model.train to get this attributes
+        metrics["traning_time_in_seconds"] = classifier.training_time
 
         # Save metrics to a JSON file
         metrics_file = os.path.join(MODEL_DIR,f'coral_reef_classifier_{model_type}_metrics.json')
