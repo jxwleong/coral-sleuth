@@ -14,6 +14,9 @@ class TestImageLoading(unittest.TestCase):
         test_image1_path = os.path.join(self.test_data_dir, "i0201a.png")
         test_image2_path = os.path.join(self.test_data_dir, "i0201b.png")
 
+        print(test_image1_path)
+        print(test_image2_path)
+
         test_image1 = cv2.imread(test_image1_path)
         test_image2 = cv2.imread(test_image2_path)
 
