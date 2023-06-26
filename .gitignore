@@ -11,3 +11,4 @@
 
 # But don't ignore .h5 files in the data directory
 !/data/*.h5
+!requirements.txt
