@@ -1,4 +1,4 @@
-name: Python application test with GitHub Actions
+name: corel-sleuth-regression
 
 on:
   push:
