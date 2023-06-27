@@ -43,12 +43,11 @@ class TestCoralReefClassifier(unittest.TestCase):
         self.assertTrue(all(label in unique_labels for label in original_labels))
 
 
-
-
     def test_create_model(self):
         self.classifier.create_model()
         self.assertIsInstance(self.classifier.model, Model)
         self.assertIsNotNone(self.classifier.model)
+
 
     def test_train(self):
         self.classifier.create_model()
@@ -64,6 +63,17 @@ class TestCoralReefClassifier(unittest.TestCase):
         # Check that the training time has been set
         self.assertIsNotNone(self.classifier.training_time)
         self.assertGreater(self.classifier.training_time, 0)
+
+
+    def test_evaluate(self):
+        self.classifier.create_model()
+        self.classifier.train(batch_size=1, epochs=1)
+        metrics = self.classifier.get_evaluation_metrics(batch_size=1)
+
+        print(metrics)
+        # Here, you might want to make some assertions about the metrics.
+        # For example, you could assert that the accuracy is above a certain threshold.
+        self.assertGreater(metrics["accuracy"], 0.0)
 
 
 if __name__ == '__main__':
