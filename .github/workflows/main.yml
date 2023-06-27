@@ -3,8 +3,14 @@ name: corel-sleuth-regression
 on:
   push:
     branches: [ '*' ]
+    branches-ignore:
+      - readme
+
   pull_request:
     branches: [ '*' ]
+    branches-ignore:
+      - readme
+
 
 jobs:
   build:
