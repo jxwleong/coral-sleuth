@@ -9,7 +9,7 @@ from keras.models import Model
 from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
 from keras.layers import Dense, GlobalAveragePooling2D, Conv2D, Flatten, concatenate, Input, MaxPooling2D
 from keras.utils import to_categorical
-from keras.applications import EfficientNetB0, VGG16, ResNet50
+from keras.applications import EfficientNetB0, VGG16, MobileNetV3Large
 from PIL import Image
 
 import sys
@@ -32,7 +32,7 @@ class CoralReefClassifier:
 
         self.efficientnet_b0_weight = os.path.join(WEIGHT_DIR, "efficientnetb0_notop.h5")
         self.vgg16_weight = os.path.join(WEIGHT_DIR, "vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5")
-        self.resnet50_weight = os.path.join(WEIGHT_DIR, "resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5")
+        self.mobilenet_v3_weight = os.path.join(WEIGHT_DIR, "weights_mobilenet_v3_large_224_1.0_float.h5")
 
         self.load_data()
 
@@ -106,6 +106,10 @@ class CoralReefClassifier:
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
             y = Dense(512, activation='relu')(pos_input)
+        elif self.model_type == "mobilenetv3":
+            base_model = MobileNetV3Large(weights=self.mobilenet_v3_weight, include_top=True)
+            x = base_model(image_input)
+            y = Dense(1024, activation='relu')(pos_input)  # MobileNetV3Large has 1024 output features
         elif self.model_type == "custom":
             x = Conv2D(16, (3, 3), activation='relu')(image_input)
             x = MaxPooling2D()(x)
