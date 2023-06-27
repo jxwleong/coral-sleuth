@@ -71,9 +71,15 @@ class TestCoralReefClassifier(unittest.TestCase):
         metrics = self.classifier.get_evaluation_metrics(batch_size=1)
 
         print(metrics)
-        # Here, you might want to make some assertions about the metrics.
-        # For example, you could assert that the accuracy is above a certain threshold.
-        self.assertGreater(metrics["accuracy"], 0.0)
+      
+        self.assertGreater(metrics["loss"], 0.0)
+        self.assertGreater(metrics["precision_1"], 0.0)
+        self.assertGreater(metrics["recall_1"], 0.0)
+        self.assertGreater(metrics["auc_1"], 0.0)
+        self.assertGreater(metrics["true_positives_1"], 0.0)
+        self.assertGreater(metrics["true_negatives_1"], 0.0)
+        self.assertGreater(metrics["false_positives_1"], 0.0)
+        self.assertGreater(metrics["false_negatives_1"], 0.0)
 
 
 if __name__ == '__main__':
