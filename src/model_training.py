@@ -23,7 +23,7 @@ if __name__ == "__main__":
     epoch = 1
    
     # for each classifier
-    for model_type in ['efficientnet', 'vgg16', 'resnet50', 'custom']:
+    for model_type in ['efficientnet', 'vgg16', 'custom']:
         classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_file, model_type)
         classifier.create_model()
         print(f"Start model({model_type}) training...")
