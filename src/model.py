@@ -4,8 +4,6 @@ import csv
 import cv2
 import json 
 import time 
-import tensorflow as tf
-import keras 
 
 from keras.models import Model
 from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
@@ -108,13 +106,6 @@ class CoralReefClassifier:
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
             y = Dense(512, activation='relu')(pos_input)
-        elif self.model_type == "resnet50":
-            resnet50_weight = tf.keras.models.load_weights(self.resnet50_weight)
-            resized_resnet50_weight = tf.image.resize(resnet50_weight, (256, 512))
-            base_model = ResNet50(weights=resized_resnet50_weight, include_top=False)
-            x = base_model(image_input)
-            x = GlobalAveragePooling2D()(x)
-            y = Dense(2048, activation='relu')(pos_input)
         elif self.model_type == "custom":
             x = Conv2D(16, (3, 3), activation='relu')(image_input)
             x = MaxPooling2D()(x)
