@@ -3,13 +3,13 @@ name: corel-sleuth-regression
 on:
   push:
     branches: [ '*' ]
-    branches-ignore:
-      - readme
+    paths-ignore:
+      - 'README.md'
 
   pull_request:
     branches: [ '*' ]
-    branches-ignore:
-      - readme
+    paths-ignore:
+      - 'README.md'
 
 
 jobs:
