@@ -10,6 +10,8 @@ __pycache__/
 # Ignore all .h5 files
 *.h5
 
+*.json 
+
 # But don't ignore .h5 files in the data directory
 !/data/*.h5
 !requirements.txt
