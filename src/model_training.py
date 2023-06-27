@@ -39,8 +39,10 @@ if __name__ == "__main__":
         # Get metrics
         metrics = classifier.get_evaluation_metrics(batch_size=batch_size)
 
-        # Make sure already run model.train to get this attributes
+        # Make sure already run model.train to get this attribute
         metrics["traning_time_in_seconds"] = classifier.training_time
+
+        metrics["annotation_file"] = classifier.annotation_file 
 
         # Save metrics to a JSON file
         metrics_file = os.path.join(MODEL_DIR,f'coral_reef_classifier_{model_type}_metrics.json')
