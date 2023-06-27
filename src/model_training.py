@@ -4,7 +4,7 @@ import csv
 import cv2
 import json 
 import time 
-
+import logging
 
 import sys
 ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", ".."))
@@ -12,7 +12,9 @@ sys.path.insert(0, ROOT_DIR)
 
 from config.path import ANNOTATION_DIR, DATA_DIR, IMAGE_DIR, WEIGHT_DIR, MODEL_DIR
 from src.model import CoralReefClassifier
+from src.utils import logging_config
 
+logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
@@ -27,16 +29,16 @@ if __name__ == "__main__":
     #for model_type in ['mobilenetv3']:
         classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_file, model_type)
         classifier.create_model()
-        print(f"Start model({model_type}) training...")
+        logger.info(f"Start model({model_type}) training...")
         classifier.train(batch_size=batch_size, epochs=epoch)
 
-        print(f"Training model({model_type}) DONE!")
+        logger.info(f"Training model({model_type}) DONE!")
         model_file = os.path.join(MODEL_DIR, f'coral_reef_classifier_{model_type}_full_epoch_{epoch}_1_batchsize_{batch_size}.h5')
         classifier.save_model(model_file)
 
-        print(f"{model_file} SAVED!")
+        logger.info(f"{model_file} SAVED!")
 
-        print("Evaluating the model now...")
+        logger.info("Evaluating the model now...")
         # Get metrics
         metrics = classifier.get_evaluation_metrics(batch_size=batch_size)
 
@@ -50,4 +52,4 @@ if __name__ == "__main__":
         with open(metrics_file, 'w') as f:
             json.dump(metrics, f, indent=4)
 
-        print(f"Evaluation metrics saved: {metrics_file}")
+        logger.info(f"Evaluation metrics saved: {metrics_file}")

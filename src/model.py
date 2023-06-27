@@ -4,6 +4,7 @@ import csv
 import cv2
 import json 
 import time 
+import logging
 
 from keras.models import Model
 from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
@@ -16,6 +17,8 @@ import sys
 ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", ".."))
 sys.path.insert(0, ROOT_DIR)
 from config.path import ANNOTATION_DIR, DATA_DIR, IMAGE_DIR, WEIGHT_DIR, MODEL_DIR
+
+logger = logging.getLogger(__name__)
 
 class CoralReefClassifier:
     def __init__(self, root_dir, data_dir, image_dir, annotation_file, model_type):
@@ -80,11 +83,11 @@ class CoralReefClassifier:
                         image = np.array(image)
                         batch_images.append(image)
                     except Exception as e:
-                        print(f'Error processing image {image_path}: {e}')
+                        logger.info(f'Error processing image {image_path}: {e}')
                         continue
 
-                if len(batch_images) == 0:  # If the batch_images list is empty, print the problematic image paths and skip to the next iteration
-                    print(f'Skipping a batch at index {i}. All image paths in this batch were problematic: {batch_image_paths}')
+                if len(batch_images) == 0:  # If the batch_images list is empty, logger.info the problematic image paths and skip to the next iteration
+                    logger.info(f'Skipping a batch at index {i}. All image paths in this batch were problematic: {batch_image_paths}')
                     continue
                 
                 batch_images = np.array(batch_images, dtype=np.float32) / 255.0
@@ -133,13 +136,13 @@ class CoralReefClassifier:
                 Accuracy(), Precision(), Recall(), AUC(), 
                 TruePositives(), TrueNegatives(), FalsePositives(), 
                 FalseNegatives()
-                ]
+            ]
         )
 
 
     def train(self, batch_size, epochs):
         if self.model is None:
-            print("No model defined.")
+            logger.info("No model defined.")
             return
 
         steps_per_epoch = len(self.image_paths) // batch_size
@@ -149,18 +152,18 @@ class CoralReefClassifier:
         self.end_time = time.time() 
 
         self.training_time = self.end_time - self.start_time  # Compute the training time
-        print(f'Training time: {self.training_time} seconds')
+        logger.info(f'Training time: {self.training_time} seconds')
 
     def save_model(self, model_file):
         if self.model is None:
-            print("No model to save.")
+            logger.info("No model to save.")
             return
 
         self.model.save(model_file)
 
     def get_evaluation_metrics(self, batch_size):
         if self.model is None:
-            print("No model defined.")
+            logger.info("No model defined.")
             return {}
 
         steps = len(self.image_paths) // batch_size
