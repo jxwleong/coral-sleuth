@@ -1,8 +1,13 @@
 {
-    "loss": 13.73849868774414,
-    "accuracy": 0.36592742800712585,
-    "precision": 0.36592742800712585,
-    "recall": 0.36592742800712585,
-    "auc": 0.685799777507782,
-    "traning_time_in_seconds": 157.11933279037476
+    "loss": 9.592691421508789,
+    "accuracy": 0.1815776228904724,
+    "precision": 0.3906882703304291,
+    "recall": 0.3891128897666931,
+    "auc": 0.7368898987770081,
+    "true_positives": 386.0,
+    "true_negatives": 6342.0,
+    "false_positives": 602.0,
+    "false_negatives": 606.0,
+    "traning_time_in_seconds": 155.4199070930481,
+    "annotation_file": "c:\\Users\\ad_xleong\\Desktop\\coral-sleuth\\data\\annotations\\combined_annotations_1000.csv"
 }
