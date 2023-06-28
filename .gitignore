@@ -13,6 +13,6 @@ __pycache__/
 *.json 
 
 # But don't ignore .h5 files in the data directory
-!/data/*.h5
+!/data/**/*.h5
 !requirements.txt
 !tests/**/*.png
