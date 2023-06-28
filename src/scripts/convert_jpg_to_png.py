@@ -12,8 +12,12 @@ output_folder = input_folder  # Saving output to the same folder
 
 for jpeg_file in os.listdir(input_folder):
     if jpeg_file.endswith(".jpg"):
+        png_file = os.path.splitext(jpeg_file)[0] + ".png"
+        output_file = os.path.join(output_folder, png_file)
+        if os.path.exists(output_file) is True:
+            print(f"{output_file} exists! Skipping...")
+            continue
         print(f"Converting {jpeg_file} to png... ", end=" ")
         img = Image.open(os.path.join(input_folder, jpeg_file))
-        png_file = os.path.splitext(jpeg_file)[0] + ".png"
-        img.save(os.path.join(output_folder, png_file))
+        img.save(output_file)
         print("DONE")
