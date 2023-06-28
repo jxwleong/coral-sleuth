@@ -5,11 +5,13 @@ on:
     branches: [ '*' ]
     paths-ignore:
       - 'README.md'
+      - 'requirements.txt'
 
   pull_request:
     branches: [ '*' ]
     paths-ignore:
       - 'README.md'
+      - 'requirements.txt'
 
 
 jobs:
