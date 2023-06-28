@@ -10,7 +10,7 @@ from keras.models import Model
 from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
 from keras.layers import Dense, GlobalAveragePooling2D, Conv2D, Flatten, concatenate, Input, MaxPooling2D
 from keras.utils import to_categorical
-from keras.applications import EfficientNetB0, VGG16, MobileNetV3Large
+from keras.applications import EfficientNetB0, VGG16, MobileNetV3Large, EfficientNetV2B0
 from PIL import Image
 
 import sys
@@ -34,10 +34,12 @@ class CoralReefClassifier:
         self.model = None
 
         self.efficientnet_b0_weight = os.path.join(WEIGHT_DIR, "efficientnetb0_notop.h5")
+        self.efficientnet_v2_b0_weight = os.path.join(WEIGHT_DIR, "efficientnetv2-b0_notop.h5")
         self.vgg16_weight = os.path.join(WEIGHT_DIR, "vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5")
         self.mobilenet_v3_weight = os.path.join(WEIGHT_DIR, "weights_mobilenet_v3_large_224_1.0_float.h5")
 
         self.load_data()
+
 
     def load_data(self):
         with open(self.annotation_file, 'r') as csvfile:
@@ -66,6 +68,7 @@ class CoralReefClassifier:
 
         self.n_unique_labels = len(unique_labels)
 
+
     def data_generator(self, batch_size):
         while True:
             for i in range(0, len(self.image_paths), batch_size):
@@ -78,20 +81,24 @@ class CoralReefClassifier:
                 for image_path in batch_image_paths:
                     try:
                         image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+                        if image is None:
+                            logger.error(f'Error processing image {image_path}: could not be read by cv2.imread')
+                            continue
                         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                         image = cv2.resize(image, (224, 224))  # Make sure all images are resized to (224, 224)
                         image = np.array(image)
                         batch_images.append(image)
                     except Exception as e:
-                        logger.info(f'Error processing image {image_path}: {e}')
+                        logger.error(f'Error processing image {image_path}: {e}')
                         continue
 
                 if len(batch_images) == 0:  # If the batch_images list is empty, logger.info the problematic image paths and skip to the next iteration
-                    logger.info(f'Skipping a batch at index {i}. All image paths in this batch were problematic: {batch_image_paths}')
+                    logger.warning(f'Skipping a batch at index {i}. All image paths in this batch were problematic: {batch_image_paths}')
                     continue
                 
                 batch_images = np.array(batch_images, dtype=np.float32) / 255.0
                 yield [batch_images, np.column_stack((batch_x_pos, batch_y_pos))], batch_labels
+
 
     def create_model(self):
         image_input = Input(shape=(224, 224, 3))
@@ -101,6 +108,11 @@ class CoralReefClassifier:
 
         if self.model_type == "efficientnet":
             base_model = EfficientNetB0(weights=self.efficientnet_b0_weight, include_top=False)
+            x = base_model(image_input)
+            x = GlobalAveragePooling2D()(x)
+            y = Dense(1280, activation='relu')(pos_input)
+        elif self.model_type == "efficientnetb0":
+            base_model = EfficientNetV2B0(weights=self.efficientnet_v2_b0_weight, include_top=False)
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
             y = Dense(1280, activation='relu')(pos_input)
@@ -154,12 +166,14 @@ class CoralReefClassifier:
         self.training_time = self.end_time - self.start_time  # Compute the training time
         logger.info(f'Training time: {self.training_time} seconds')
 
+
     def save_model(self, model_file):
         if self.model is None:
             logger.info("No model to save.")
             return
 
         self.model.save(model_file)
+
 
     def get_evaluation_metrics(self, batch_size):
         if self.model is None:
