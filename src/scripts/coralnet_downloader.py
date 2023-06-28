@@ -13,6 +13,15 @@ sys.path.insert(0, ROOT_DIR)
 from config.path import ANNOTATION_DIR, IMAGE_DIR
 from config.proxy import proxies
 
+"""
+Please use your own proxies. Example as follow:
+ 
+proxies = {
+  "http": "http://10.10.1.10:3128",
+  "https": "http://10.10.1.10:1080",
+}
+"""
+
 percent_covers_path = os.path.join(ANNOTATION_DIR, "coralnet_source_2091_percent_covers.csv")
 
 # Create 'images' folder if it doesn't exist
