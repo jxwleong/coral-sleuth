@@ -9,3 +9,6 @@ tensorflow==2.12.0
 
 # For label distribution plot
 matplotlib==3.6.2
+
+# To fix the class imbalance
+imbalanced-learn==0.10.1
