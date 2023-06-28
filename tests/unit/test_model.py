@@ -15,7 +15,7 @@ class TestCoralReefClassifier(unittest.TestCase):
         self.root_dir = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", ".."))
         self.data_dir = os.path.join(self.root_dir, 'data')
         self.image_dir = self.data_dir
-        self.annotation_file = os.path.join(self.data_dir, 'test_simple_annotations.csv')
+        self.annotation_file = os.path.join(self.data_dir, 'test_annotations.csv')
         self.model_type = 'custom'  
 
         self.classifier = CoralReefClassifier(self.root_dir, self.data_dir, self.image_dir, self.annotation_file, self.model_type)
@@ -23,7 +23,8 @@ class TestCoralReefClassifier(unittest.TestCase):
 
     def test_load_data(self):
         # self.classifier.load_data()
-        self.assertEqual(len(self.classifier.image_paths), 2)
+        # 37 row of annotation in the selected csv file
+        self.assertEqual(len(self.classifier.image_paths), 37)
         self.assertTrue(all(os.path.exists(path) for path in self.classifier.image_paths))
             
         print("One-hot encoded labels:", self.classifier.labels)  # Added print statement
@@ -38,7 +39,7 @@ class TestCoralReefClassifier(unittest.TestCase):
         # Convert the integer labels back to their original string labels
         original_labels = [label_mapping[label] for label in labels]
 
-        self.assertEqual(len(original_labels), 2)
+        self.assertEqual(len(original_labels), 37)
         print("Original labels:", original_labels)  # Added print statement
         self.assertTrue(all(label in unique_labels for label in original_labels))
 
