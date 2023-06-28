@@ -11,7 +11,9 @@ from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueN
 from keras.layers import Dense, GlobalAveragePooling2D, Conv2D, Flatten, concatenate, Input, MaxPooling2D
 from keras.utils import to_categorical
 from keras.applications import EfficientNetB0, VGG16, MobileNetV3Large, EfficientNetV2B0
+from sklearn.model_selection import train_test_split
 from PIL import Image
+from collections import Counter
 
 import sys
 ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", ".."))
@@ -40,7 +42,6 @@ class CoralReefClassifier:
 
         self.load_data()
 
-
     def load_data(self):
         with open(self.annotation_file, 'r') as csvfile:
             reader = csv.reader(csvfile)
@@ -58,24 +59,47 @@ class CoralReefClassifier:
                     self.x_pos.append(x)
                     self.y_pos.append(y)
 
+        # Convert labels to integers
         unique_labels = np.unique(self.labels)
+        self.n_unique_labels = len(unique_labels)  # Store the number of unique labels here
         label_mapping = {label: i for i, label in enumerate(unique_labels)}
         self.labels = np.array([label_mapping[label] for label in self.labels])
 
+        # Filter out classes with only one sample
+        label_counts = np.bincount(self.labels)
+        single_sample_labels = np.where(label_counts == 1)[0]
+        indices_to_keep = [i for i, label in enumerate(self.labels) if label not in single_sample_labels]
+
+        self.image_paths = [self.image_paths[i] for i in indices_to_keep]
+        self.labels = [self.labels[i] for i in indices_to_keep]
+        self.x_pos = [self.x_pos[i] for i in indices_to_keep]
+        self.y_pos = [self.y_pos[i] for i in indices_to_keep]
+
+        # Convert labels to categorical
         self.labels = to_categorical(self.labels)
         self.x_pos = np.array(self.x_pos)
         self.y_pos = np.array(self.y_pos)
 
-        self.n_unique_labels = len(unique_labels)
+        # Split the data into training and validation sets
+        (
+            self.image_paths_train, self.image_paths_val, 
+            self.labels_train, self.labels_val, 
+            self.x_pos_train, self.x_pos_val, 
+            self.y_pos_train, self.y_pos_val
+        ) = train_test_split(
+                self.image_paths, self.labels, self.x_pos, self.y_pos, 
+                test_size=0.2, stratify=self.labels, random_state=42
+        )
 
 
-    def data_generator(self, batch_size):
+
+    def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size):
         while True:
-            for i in range(0, len(self.image_paths), batch_size):
-                batch_image_paths = self.image_paths[i:i+batch_size]
-                batch_labels = self.labels[i:i+batch_size]
-                batch_x_pos = self.x_pos[i:i+batch_size]
-                batch_y_pos = self.y_pos[i:i+batch_size]
+            for i in range(0, len(image_paths), batch_size):
+                batch_image_paths = image_paths[i:i+batch_size]
+                batch_labels = labels[i:i+batch_size]
+                batch_x_pos = x_pos[i:i+batch_size]
+                batch_y_pos = y_pos[i:i+batch_size]
                 
                 batch_images = []
                 for image_path in batch_image_paths:
@@ -157,10 +181,16 @@ class CoralReefClassifier:
             logger.info("No model defined.")
             return
 
-        steps_per_epoch = len(self.image_paths) // batch_size
+        steps_per_epoch = len(self.image_paths_train) // batch_size
+        validation_steps = len(self.image_paths_val) // batch_size
         self.model.summary()
         self.start_time = time.time() 
-        self.model.fit(self.data_generator(batch_size), steps_per_epoch=steps_per_epoch, epochs=epochs)
+        self.model.fit(
+            self.data_generator(self.image_paths_train, self.labels_train, self.x_pos_train, self.y_pos_train, batch_size), 
+            steps_per_epoch=steps_per_epoch, epochs=epochs,
+            validation_data=self.data_generator(self.image_paths_val, self.labels_val, self.x_pos_val, self.y_pos_val, batch_size),
+            validation_steps=validation_steps
+        )
         self.end_time = time.time() 
 
         self.training_time = self.end_time - self.start_time  # Compute the training time
@@ -180,7 +210,15 @@ class CoralReefClassifier:
             logger.info("No model defined.")
             return {}
 
-        steps = len(self.image_paths) // batch_size
-        metrics = self.model.evaluate(self.data_generator(batch_size), steps=steps, verbose=0)
+        steps = len(self.image_paths_val) // batch_size
+        val_data_generator = self.data_generator(
+            image_paths=self.image_paths_val,
+            labels=self.labels_val,
+            x_pos=self.x_pos_val,
+            y_pos=self.y_pos_val,
+            batch_size=batch_size
+        )
+
+        metrics = self.model.evaluate(val_data_generator, steps=steps, verbose=0)
         metrics_dict = {name: value for name, value in zip(self.model.metrics_names, metrics)}
         return metrics_dict
