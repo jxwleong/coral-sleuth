@@ -12,6 +12,10 @@ __pycache__/
 
 *.json 
 
+
+# Ignore file that store proxy address which is sensitive infomration
+proxy.py
+
 # But don't ignore .h5 files in the data directory
 !/data/**/*.h5
 !requirements.txt
