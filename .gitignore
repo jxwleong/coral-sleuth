@@ -11,7 +11,7 @@ __pycache__/
 *.h5
 
 *.json 
-
+*.log
 
 # Ignore file that store proxy address which is sensitive infomration
 proxy.py
