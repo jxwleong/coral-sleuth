@@ -14,6 +14,7 @@ from keras.applications import EfficientNetB0, VGG16, MobileNetV3Large, Efficien
 from sklearn.model_selection import train_test_split
 from PIL import Image
 from collections import Counter
+from datetime import datetime
 
 import sys
 ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", ".."))
@@ -91,6 +92,8 @@ class CoralReefClassifier:
                 test_size=0.2, stratify=self.labels, random_state=42
         )
 
+        logger.info(f"Annotation file: {self.annotation_file}")
+        logger.info(f"Loaded {len(self.image_paths)} images with {self.n_unique_labels} unique labels\n")
 
 
     def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size):
@@ -181,10 +184,13 @@ class CoralReefClassifier:
             logger.info("No model defined.")
             return
 
+        logger.info(f"Epochs: {epochs}, Batch Size: {batch_size}\n")
         steps_per_epoch = len(self.image_paths_train) // batch_size
         validation_steps = len(self.image_paths_val) // batch_size
         self.model.summary(print_fn=logger.info)
         self.start_time = time.time() 
+        start_time = datetime.fromtimestamp(self.start_time).strftime('%Y-%m-%d %H:%M:%S')
+        logger.info(f"Start time for {self.model_type} model training: {start_time}")
         self.model.fit(
             self.data_generator(self.image_paths_train, self.labels_train, self.x_pos_train, self.y_pos_train, batch_size), 
             steps_per_epoch=steps_per_epoch, epochs=epochs,
@@ -192,7 +198,8 @@ class CoralReefClassifier:
             validation_steps=validation_steps
         )
         self.end_time = time.time() 
-
+        end_time = datetime.fromtimestamp(self.end_time).strftime('%Y-%m-%d %H:%M:%S')
+        logger.info(f"Finish training at : {end_time}")
         self.training_time = self.end_time - self.start_time  # Compute the training time
         logger.info(f'Training time: {self.training_time} seconds')
 
