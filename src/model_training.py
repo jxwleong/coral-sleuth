@@ -65,6 +65,8 @@ if __name__ == "__main__":
             MODEL_DIR,
             f'coral_reef_classifier_{model_type}_epoch_{epoch}_1_batchsize_{batch_size}_metrics_{annotation_name}.json'
         )
+        
+        logger.info("\n" + json.dumps(metrics, indent=4))
         with open(metrics_file, 'w') as f:
             json.dump(metrics, f, indent=4)
 
