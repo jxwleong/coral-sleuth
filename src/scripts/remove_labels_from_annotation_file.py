@@ -15,6 +15,20 @@ df = pd.read_csv(input_annotation)
 
 # Define the labels want to remove
 labels_to_remove = [
+    'Sand',
+    'Acropora',
+    'Acr_dig',
+    'Pavona',
+    'Porites',
+    'Acr_tab',
+    'BAD',
+    'Goniastrea',
+    'Monti_encr',
+    'Dark',
+    'Monti',
+    'Algae',
+    'Pocill',
+    'Millepora',
     'Lepta',
     'D_coral',        
     'SC',             
