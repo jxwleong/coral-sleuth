@@ -7,7 +7,7 @@ IMAGE_DIR = os.path.join(ROOT_DIR, "data", "images")
 ANNOTATION_DIR = os.path.join(ROOT_DIR, "data", "annotations")
 WEIGHT_DIR = os.path.join(ROOT_DIR, "data", "weights")
 MODEL_DIR = os.path.join(ROOT_DIR, "models")
-
+LOG_DIR = os.path.join(ROOT_DIR, "logs")
 
 DEBUG_PATH = False
 if DEBUG_PATH is True:
@@ -17,3 +17,4 @@ if DEBUG_PATH is True:
     print(f"ANNOTATION_DIR: {ANNOTATION_DIR}")
     print(f"WEIGHT_DIR: {WEIGHT_DIR}")
     print(f"MODEL_DIR: {MODEL_DIR}")
+    print(f"LOG_DIR: {LOG_DIR}")
