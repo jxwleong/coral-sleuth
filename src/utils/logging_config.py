@@ -11,11 +11,37 @@ from config.path import LOG_DIR
 os.makedirs(LOG_DIR, exist_ok=True)
 
 
+class CustomFormatter(logging.Formatter):
+    def format(self, record):
+        """
+        Format the specified record as text.
+
+        Overrides logging.Formatter's format method to add log format
+        to new lines in the log message.
+
+        Args:
+            record (LogRecord): record of the log.
+
+        Returns:
+            str: Formatted log record as a string with added log format for new lines.
+        """
+        original_msg = record.msg
+        s = super().format(record)
+        lines = s.split('\n')
+        for i in range(1, len(lines)):
+            record.msg = lines[i]
+            lines[i] = super().format(record)
+        record.msg = original_msg  # Reset the original message
+        return '\n'.join(lines)
+
+    
+
 LOGGING_CONFIG = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
+            '()': CustomFormatter,
             'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
         },
     },
