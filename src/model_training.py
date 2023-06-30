@@ -58,6 +58,9 @@ if __name__ == "__main__":
         # Make sure already run model.train to get this attribute
         metrics["traning_time_in_seconds"] = classifier.training_time
 
+        metrics["batch_size"] = batch_size
+        metrics["epoch"] = epoch
+
         # Added some information regarding the dataset/ annotation files
         metrics["annotation_filepath"] = classifier.annotation_file
         metrics["images_count"] = classifier.unique_image_count
