@@ -72,6 +72,7 @@ class CoralReefClassifier:
         indices_to_keep = [i for i, label in enumerate(self.labels) if label not in single_sample_labels]
 
         self.image_paths = [self.image_paths[i] for i in indices_to_keep]
+        self.unique_image_count = len(set(self.image_paths))
         self.labels = [self.labels[i] for i in indices_to_keep]
         self.x_pos = [self.x_pos[i] for i in indices_to_keep]
         self.y_pos = [self.y_pos[i] for i in indices_to_keep]
@@ -93,7 +94,7 @@ class CoralReefClassifier:
         )
 
         logger.info(f"Annotation file: {self.annotation_file}")
-        logger.info(f"Loaded {len(self.image_paths)} images with {self.n_unique_labels} unique labels\n")
+        logger.info(f"Loaded {self.unique_image_count} images with {len(self.image_paths)} annotations and {self.n_unique_labels} unique labels\n")
 
 
     def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size):
