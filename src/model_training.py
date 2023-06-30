@@ -58,7 +58,11 @@ if __name__ == "__main__":
         # Make sure already run model.train to get this attribute
         metrics["traning_time_in_seconds"] = classifier.training_time
 
+        # Added some information regarding the dataset/ annotation files
         metrics["annotation_filepath"] = classifier.annotation_file
+        metrics["images_count"] = classifier.unique_image_count
+        metrics["annotation_count"] = len(classifier.image_paths)
+        metrics["annotation_label_count"] = classifier.n_unique_labels
 
         # Save metrics to a JSON file
         metrics_file = os.path.join(
