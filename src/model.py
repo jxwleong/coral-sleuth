@@ -183,7 +183,7 @@ class CoralReefClassifier:
 
         steps_per_epoch = len(self.image_paths_train) // batch_size
         validation_steps = len(self.image_paths_val) // batch_size
-        self.model.summary()
+        self.model.summary(print_fn=logger.info)
         self.start_time = time.time() 
         self.model.fit(
             self.data_generator(self.image_paths_train, self.labels_train, self.x_pos_train, self.y_pos_train, batch_size), 
