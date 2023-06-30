@@ -1,4 +1,15 @@
 import logging.config
+import os 
+
+import sys
+ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", ".."))
+sys.path.insert(0, ROOT_DIR)
+
+from config.path import LOG_DIR
+
+# Create the directory if it doesn't exist
+os.makedirs(LOG_DIR, exist_ok=True)
+
 
 LOGGING_CONFIG = {
     'version': 1,
@@ -15,10 +26,17 @@ LOGGING_CONFIG = {
             'class': 'logging.StreamHandler',
             'stream': 'ext://sys.stdout',  # Default is stderr
         },
+        'file': {
+            'level': 'INFO',
+            'formatter': 'standard',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_DIR, 'default.log'),  
+            'mode': 'a',
+        }
     },
     'loggers': {
         '': {  # root logger
-            'handlers': ['default'],
+            'handlers': ['default', 'file'],
             'level': 'INFO',
             'propagate': True
         }
