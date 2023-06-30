@@ -58,7 +58,7 @@ if __name__ == "__main__":
         # Make sure already run model.train to get this attribute
         metrics["traning_time_in_seconds"] = classifier.training_time
 
-        metrics["annotation_filepath"] = classifier.annotation_filepath 
+        metrics["annotation_filepath"] = classifier.annotation_file
 
         # Save metrics to a JSON file
         metrics_file = os.path.join(
