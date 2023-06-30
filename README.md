@@ -1,7 +1,28 @@
-﻿# coral-sleuth ![main workflow](https://github.com/jxwleong/coral-sleuth/actions/workflows/main.yml/badge.svg)
+﻿# coral-sleuth ![main workflow](https://github.com/jxwleong/coral-sleuth/actions/workflows/main.yml/badge.svg) 
+
 ## <a name="toc"></a> Table of Contents
+- [Overview](#overview)
 - [Dataset](#dataset)
 
+
+<br/><br/>
+<!-- omit in toc -->
+## <a name="overview"></a> Overview [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
+"Coral Sleuth" is a deep learning project focused on advancing the precise and efficient identification of coral species from underwater images. The core ambition of the project is to foster a technological contribution that can augment the speed and accuracy of coral identification, thereby enabling better management and conservation of precious coral reef ecosystems.
+
+At the heart of the project lies a novel deep learning model, engineered specifically for the task of coral identification. The model is designed with a keen focus on balancing computational efficiency - allowing for real-time analysis and scalability for large-scale deployments - with high predictive accuracy, crucial for reliable identification of diverse coral species.
+
+The project comprises the following key components:
+
+1. Data Collection: Gathering a comprehensive and robust dataset of high-resolution underwater images of various coral species.
+
+2. Model Benchmarking: Evaluating and comparing the performance of a variety of state-of-the-art deep learning models in terms of computational efficiency and predictive accuracy.
+
+3. Model Development: Creating a novel, optimized deep learning model for coral identification, based on insights gained from benchmarking and tailored for the project's unique requirements.
+
+4. Model Validation: Rigorously testing the model's performance on unseen datasets, to ensure its robustness, generalizability, and reliability in diverse coral ecosystems.
+
+Through these elements, "Coral Sleuth" aims to provide a valuable tool that can assist in the study, preservation, and management of coral species, supporting global efforts to protect and conserve our invaluable coral reef ecosystems.
 
 
 <br/><br/>
