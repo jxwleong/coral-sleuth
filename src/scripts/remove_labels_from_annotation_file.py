@@ -1,8 +1,14 @@
 import pandas as pd
 
+import os
+import sys
+ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", ".."))
+sys.path.insert(0, ROOT_DIR)
 
-input_annotation = r"C:\Users\ad_xleong\Desktop\coral-sleuth\data\annotations\annotations_coralnet_only.csv"
-output_annotation = r"C:\Users\ad_xleong\Desktop\coral-sleuth\data\annotations\annotations_coralnet_only_trimmed.csv"
+from config.path import ANNOTATION_DIR
+
+input_annotation =  os.path.join(ANNOTATION_DIR, "annotations_coralnet_only.csv")
+output_annotation = os.path.join(ANNOTATION_DIR, "annotations_coralnet_only_trimmed.csv")
 
 # Load CSV file
 df = pd.read_csv(input_annotation)

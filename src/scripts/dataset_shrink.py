@@ -3,10 +3,12 @@ from collections import defaultdict
 import os
 import sys 
 
+import os
+import sys
+ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", ".."))
+sys.path.insert(0, ROOT_DIR)
 
-ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), ".."))
-DATA_DIR = os.path.join(ROOT_DIR, "data")
-IMAGE_DIR = os.path.join(ROOT_DIR, "images")
+from config.path import ANNOTATION_DIR, DATA_DIR, IMAGE_DIR
 
 
 def limit_annotations_per_image(input_csv, output_csv, limit=2):
