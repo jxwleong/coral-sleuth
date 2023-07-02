@@ -25,15 +25,16 @@ logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
-    annotation_filename = "annotations_coralnet_only_trimmed.csv"
+    annotation_filename = "combined_annotations_about_40k_png_only_trimmed.csv"
     annotation_name = annotation_filename.split(".")[0]
     annotation_filepath = os.path.join(ANNOTATION_DIR, annotation_filename)
 
     batch_size = 16
-    epoch = 1
+    epoch = 2
     
     logger.info(f"Device List: {device_lib.list_local_devices()}")
 
+    metrics = {}
     # for each classifier
     for model_type in ['efficientnet', 'efficientnetb0','vgg16', 'mobilenetv3', 'custom']:
     #for model_type in ['efficientnetb0']:
@@ -52,25 +53,27 @@ if __name__ == "__main__":
         logger.info(f"{model_file} SAVED!")
 
         logger.info("Evaluating the model now...")
-        # Get metrics
-        metrics = classifier.get_evaluation_metrics(batch_size=batch_size)
+
+        # Get model metrics
+        model_metrics = classifier.get_evaluation_metrics(batch_size=batch_size)
 
         # Make sure already run model.train to get this attribute
-        metrics["traning_time_in_seconds"] = classifier.training_time
+        model_metrics["traning_time_in_seconds"] = classifier.training_time
 
-        metrics["batch_size"] = batch_size
-        metrics["epoch"] = epoch
+        model_metrics["batch_size"] = batch_size
+        model_metrics["epoch"] = epoch
 
         # Added some information regarding the dataset/ annotation files
-        metrics["annotation_filepath"] = classifier.annotation_file
-        metrics["images_count"] = classifier.unique_image_count
-        metrics["annotation_count"] = len(classifier.image_paths)
-        metrics["annotation_label_count"] = classifier.n_unique_labels
+        model_metrics["annotation_file"] = annotation_filename
+        model_metrics["images_count"] = classifier.unique_image_count
+        model_metrics["annotation_count"] = len(classifier.image_paths)
+        model_metrics["annotation_label_count"] = classifier.n_unique_labels
 
+        metrics[f"{model_type}"] = model_metrics
         # Save metrics to a JSON file
         metrics_file = os.path.join(
             MODEL_DIR,
-            f'coral_reef_classifier_{model_type}_epoch_{epoch}_1_batchsize_{batch_size}_metrics_{annotation_name}.json'
+            f'coral_reef_classifier_epoch_{epoch}_1_batchsize_{batch_size}_metrics_{annotation_name}.json'
         )
         
         logger.info("\n" + json.dumps(metrics, indent=4))
