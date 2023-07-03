@@ -71,8 +71,12 @@ class CoralReefClassifier:
         # Filter out classes with only one sample
         label_counts = np.bincount(self.labels)
         single_sample_labels = np.where(label_counts == 1)[0]
+        multi_sample_labels_count = len(unique_labels) - len(single_sample_labels)  # Number of labels with more than one sample
+        logger.warning(f"Skipping label {single_sample_labels} since it only contain one sample")
+        self.label_skipped_count = len(single_sample_labels)
         indices_to_keep = [i for i, label in enumerate(self.labels) if label not in single_sample_labels]
-
+        self.number_labels_to_train = multi_sample_labels_count
+        
         self.image_paths = [self.image_paths[i] for i in indices_to_keep]
         self.unique_image_count = len(set(self.image_paths))
         self.labels = [self.labels[i] for i in indices_to_keep]
@@ -96,7 +100,7 @@ class CoralReefClassifier:
         )
 
         logger.info(f"Annotation file: {self.annotation_file}")
-        logger.info(f"Loaded {self.unique_image_count} images with {len(self.image_paths)} annotations and {self.n_unique_labels} unique labels\n")
+        logger.info(f"Loaded {self.unique_image_count} images with {len(self.image_paths)} annotations and {self.number_labels_to_train} labels\n")
 
 
     def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size):
