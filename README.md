@@ -43,7 +43,7 @@ Another great thing about CoralNet is that it lets people work together to label
 <br/>
 
 ### Source 2: MCR LTER 
-MCR LTER (source: ) The Moorea Coral Reef LTER is a subset of the MCR LTER dedicated to fostering extensive research in the field of coral reef ecosystems. The dataset includes 2055 images captured from three distinct habitats over the years 2008, 2009, and 2010.
+MCR LTER (source: http://mcr.lternet.edu/cgi-bin/showDataset.cgi?docid=knb-lter-mcr.5006) The Moorea Coral Reef LTER is a subset of the MCR LTER dedicated to fostering extensive research in the field of coral reef ecosystems. The dataset includes 2055 images captured from three distinct habitats over the years 2008, 2009, and 2010.
 
 The images feature annotations for nine primary labels, four of which are non-coral: Crustose Coralline Algae (CCA), Turf Algae, Macroalgae, and Sand, and five are coral genera: Acropora, Pavona, Montipora, Pocillopora, and Porites. These labels cover a whopping 96% of all the annotations, resulting in nearly 400,000 points.
 
