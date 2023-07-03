@@ -7,7 +7,7 @@ from keras.utils import to_categorical
 import sys
 ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", ".."))
 sys.path.insert(0, ROOT_DIR)
-from src.model_training import CoralReefClassifier
+from src.model import CoralReefClassifier
 
 
 class TestCoralReefClassifier(unittest.TestCase):
