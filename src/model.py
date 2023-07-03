@@ -72,7 +72,10 @@ class CoralReefClassifier:
         label_counts = np.bincount(self.labels)
         single_sample_labels = np.where(label_counts == 1)[0]
         multi_sample_labels_count = len(unique_labels) - len(single_sample_labels)  # Number of labels with more than one sample
-        logger.warning(f"Skipping label {single_sample_labels} since it only contain one sample")
+        
+        if len(single_sample_labels) != 0:
+            logger.warning(f"Skipping label {single_sample_labels} since it only contain one sample")
+            
         self.label_skipped_count = len(single_sample_labels)
         indices_to_keep = [i for i, label in enumerate(self.labels) if label not in single_sample_labels]
         self.number_labels_to_train = multi_sample_labels_count
@@ -276,6 +279,19 @@ class CoralReefClassifier:
     
     
     def convert_to_key_value_pairs(self, data):
+        """
+        Converts a dictionary of key-value pairs where values may be lists or nested dictionaries
+        into a dictionary of key-value pairs where each value is a single element.
+        If a value is a list, the last element of the list is chosen as the new value.
+        If a value is a dictionary, the function is called recursively on that dictionary.
+
+        Parameters:
+        data (dict): The input dictionary to be converted.
+
+        Returns:
+        dict: The converted dictionary with single-element values.
+        """
+     
         key_value_dict = {}
         for key, values in data.items():
             # If value is list then take the last element
