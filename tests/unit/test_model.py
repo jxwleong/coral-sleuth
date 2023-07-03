@@ -74,13 +74,13 @@ class TestCoralReefClassifier(unittest.TestCase):
         print(metrics)
       
         self.assertTrue(metrics["loss"] >= 0.0)
-        self.assertTrue(metrics["precision_1"] >= 0.0)
-        self.assertTrue(metrics["recall_1"] >= 0.0)
-        self.assertTrue(metrics["auc_1"] >= 0.0)
-        self.assertTrue(metrics["true_positives_1"] >= 0.0)
-        self.assertTrue(metrics["true_negatives_1"] >= 0.0)
-        self.assertTrue(metrics["false_positives_1"] >= 0.0)
-        self.assertTrue(metrics["false_negatives_1"] >= 0.0)
+        self.assertTrue(metrics["precision"] >= 0.0)
+        self.assertTrue(metrics["recall"] >= 0.0)
+        self.assertTrue(metrics["auc"] >= 0.0)
+        self.assertTrue(metrics["true_positives"] >= 0.0)
+        self.assertTrue(metrics["true_negatives"] >= 0.0)
+        self.assertTrue(metrics["false_positives"] >= 0.0)
+        self.assertTrue(metrics["false_negatives"] >= 0.0)
 
 
 if __name__ == '__main__':
