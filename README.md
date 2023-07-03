@@ -40,6 +40,8 @@ The pictures in this dataset show different types of corals, underwater creature
 
 Another great thing about CoralNet is that it lets people work together to label the pictures. This means more people checking and making sure the labels are correct, which makes the data better for everyone.
 
+Label List: https://coralnet.ucsd.edu/label/list/
+
 <br/>
 
 ### Source 2: MCR LTER 
