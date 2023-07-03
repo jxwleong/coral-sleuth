@@ -12,3 +12,6 @@ matplotlib==3.6.2
 
 # To fix the class imbalance
 imbalanced-learn==0.10.1
+
+# To write to excel
+openpyxl==3.0.10
