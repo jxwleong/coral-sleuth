@@ -1,12 +1,10 @@
 import pandas as pd
+from openpyxl import load_workbook
 
 
 def dict_to_excel(data, filename, first_column_name):
     """
-    Converts a dictionary to an Excel file.
-
-    The dictionary keys are considered as row indices and its inner dictionary keys are
-    considered as column headers in the Excel sheet.
+    Converts a dictionary to an Excel file with columns auto-fit.
 
     Parameters:
     data (dict): The dictionary data to convert.
@@ -28,6 +26,24 @@ def dict_to_excel(data, filename, first_column_name):
     # Write the DataFrame to an Excel file
     df.to_excel(filename)
 
+    # Load workbook
+    book = load_workbook(filename)
+    sheet = book.active
+
+    for column in sheet.columns:
+        max_length = 0
+        column = [cell for cell in column]
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(cell.value)
+            except:
+                pass
+        adjusted_width = (max_length + 2)
+        sheet.column_dimensions[column[0].column_letter].width = adjusted_width
+
+    book.save(filename)
+
 
 
 if __name__ == "__main__":
@@ -38,6 +54,5 @@ if __name__ == "__main__":
     # Load the data from the JSON file
     with open(test_file, 'r') as file:
         data = json.load(file)
-        
         
     dict_to_excel(data, "output.xlsx", "model_name")
