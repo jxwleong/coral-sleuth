@@ -198,7 +198,7 @@ class CoralReefClassifier:
         self.start_time = time.time() 
         start_time = datetime.fromtimestamp(self.start_time).strftime('%Y-%m-%d %H:%M:%S')
         logger.info(f"Start time for {self.model_type} model training: {start_time}")
-        self.model.fit(
+        model_history = self.model.fit(
             self.data_generator(self.image_paths_train, self.labels_train, self.x_pos_train, self.y_pos_train, batch_size), 
             steps_per_epoch=steps_per_epoch, epochs=epochs,
             validation_data=self.data_generator(self.image_paths_val, self.labels_val, self.x_pos_val, self.y_pos_val, batch_size),
@@ -209,6 +209,10 @@ class CoralReefClassifier:
         logger.info(f"Finish training at : {end_time}")
         self.training_time = self.end_time - self.start_time  # Compute the training time
         logger.info(f'Training time: {self.training_time} seconds')
+        
+        training_metrics = model_history.history
+        training_metrics = self.convert_to_key_value_pairs(training_metrics)
+        return training_metrics
 
 
     def save_model(self, model_file):
@@ -269,3 +273,17 @@ class CoralReefClassifier:
                 # Handle keys without underscores here, if necessary
                 new_metrics[key] = metrics[key]
         return new_metrics
+    
+    
+    def convert_to_key_value_pairs(self, data):
+        key_value_dict = {}
+        for key, values in data.items():
+            # If value is list then take the last element
+            if isinstance(values, list):
+                key_value_dict[key] = values[-1]
+            # If value is a dictionary, then recursively call the function
+            elif isinstance(values, dict):
+                key_value_dict[key] = convert_to_key_value_pairs(values)
+            else:
+                key_value_dict[key] = values
+        return key_value_dict
