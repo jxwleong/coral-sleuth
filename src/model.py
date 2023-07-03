@@ -5,6 +5,8 @@ import cv2
 import json 
 import time 
 import logging
+import re 
+
 
 from keras.models import Model
 from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
@@ -229,4 +231,37 @@ class CoralReefClassifier:
 
         metrics = self.model.evaluate(val_data_generator, steps=steps, verbose=0)
         metrics_dict = {name: value for name, value in zip(self.model.metrics_names, metrics)}
+        metrics_dict = self.normalize_metric_names(metrics_dict)
         return metrics_dict
+    
+    
+    def normalize_metric_names(self, metrics):
+        """
+        Normalize the metric names in the model results.
+
+        Given a dictionary of metrics, this function will normalize the metric
+        names by removing trailing digit identifiers.
+
+        For example, for the input:
+        {"precision_2": 0.7, "recall_2": 0.8}
+        
+        the output will be:
+        {"precision": 0.6, "recall": 0.9}
+
+        Parameters:
+        metrics (dict): The dictionary of metrics.
+
+        Returns:
+        dict: The dictionary of metrics with normalized names.
+        """
+        new_metrics = {}
+        for key in list(metrics.keys()):
+            # Regular expression to match any key ending with _<number>
+            if re.match(".*_\d+$", key):
+                new_key = re.sub("_\d+$", "", key)
+                # Add the normalized metric to the dictionary
+                new_metrics[new_key] = metrics[key]
+            else:
+                # Handle keys without underscores here, if necessary
+                new_metrics[key] = metrics[key]
+        return new_metrics
