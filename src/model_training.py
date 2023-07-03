@@ -25,12 +25,12 @@ logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
-    annotation_filename = "combined_annotations_1000.csv"
+    annotation_filename = "combined_annotations_about_40k_png_only_remapped.csv"
     annotation_name = annotation_filename.split(".")[0]
     annotation_filepath = os.path.join(ANNOTATION_DIR, annotation_filename)
 
     batch_size = 16
-    epoch = 1
+    epoch = 2
     
     logger.info(f"Device List: {device_lib.list_local_devices()}")
 
@@ -94,5 +94,6 @@ if __name__ == "__main__":
         f'coral_reef_classifier_epoch_{epoch}_1_batchsize_{batch_size}_metrics_{annotation_name}.xlsx'
     )
     excel.dict_to_excel(metrics, excel_file, "model_name")
+    excel.append_label_distribution_to_excel(annotation_filepath, excel_file)
     logger.info(f"Evaluation metrics in excel format saved: {excel_file}")
 
