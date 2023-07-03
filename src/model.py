@@ -139,7 +139,7 @@ class CoralReefClassifier:
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
             y = Dense(1280, activation='relu')(pos_input)
-        elif self.model_type == "efficientnetb0":
+        elif self.model_type == "efficientnetv2":
             base_model = EfficientNetV2B0(weights=self.efficientnet_v2_b0_weight, include_top=False)
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
