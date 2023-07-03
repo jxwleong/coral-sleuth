@@ -33,12 +33,19 @@ def dict_to_excel(data, filename, first_column_name):
     for column in sheet.columns:
         max_length = 0
         column = [cell for cell in column]
+        
         for cell in column:
             try:
+                # update the max_length if cell length is greater
                 if len(str(cell.value)) > max_length:
-                    max_length = len(cell.value)
+                    max_length = len(str(cell.value))
             except:
                 pass
+        
+        # Consider the header cell length as well
+        if len(str(column[0].value)) > max_length:
+            max_length = len(column[0].value)
+            
         adjusted_width = (max_length + 2)
         sheet.column_dimensions[column[0].column_letter].width = adjusted_width
 
