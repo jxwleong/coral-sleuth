@@ -8,14 +8,14 @@ sys.path.insert(0, ROOT_DIR)
 from config.path import ANNOTATION_DIR
 
 input_annotation =  os.path.join(ANNOTATION_DIR, "combined_annotations_about_40k_png_only.csv")
-output_annotation = os.path.join(ANNOTATION_DIR, "combined_annotations_about_40k_png_CCA.csv")
+output_annotation = os.path.join(ANNOTATION_DIR, "combined_annotations_about_40k_png_CCA_Sand_SAND_TURF_Turf.csv")
 
 # Load CSV file
 df = pd.read_csv(input_annotation)
 
 # Define the labels want to remove
 labels_to_remove = [
-'Sand',
+    #'Sand',
     'Acropora',
     'Acr_dig',
     'Pavona',
@@ -62,13 +62,13 @@ labels_to_remove = [
 ]
 
 additional_labels_to_remove = [
-    'Turf',
+    #'Turf',
     'Porit',
     'P. Rus',
-    'TURF',
+    #'TURF',
     'HS',
     'Macro',
-    'SAND',
+    #'SAND',
     'PORIT',
     'MACRO',
     'C-Rubble',
