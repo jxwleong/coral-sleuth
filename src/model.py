@@ -107,7 +107,7 @@ class CoralReefClassifier:
         logger.info(f"Loaded {self.unique_image_count} images with {len(self.image_paths)} annotations and {self.number_labels_to_train} labels\n")
 
 
-    def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size):
+    def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size, block_size=224):
         while True:
             for i in range(0, len(image_paths), batch_size):
                 batch_image_paths = image_paths[i:i+batch_size]
@@ -116,13 +116,24 @@ class CoralReefClassifier:
                 batch_y_pos = y_pos[i:i+batch_size]
                 
                 batch_images = []
-                for image_path in batch_image_paths:
+                for idx, image_path in enumerate(batch_image_paths):
                     try:
                         image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
                         if image is None:
                             logger.error(f'Error processing image {image_path}: could not be read by cv2.imread')
                             continue
                         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                        
+                        # Create segment from image
+                        height, width, _ = image.shape
+                        x = int(batch_x_pos[idx])
+                        y = int(batch_y_pos[idx])
+                        left = max(0, x - block_size//2)
+                        right = min(width, x + block_size//2)
+                        top = max(0, y - block_size//2)
+                        bottom = min(height, y + block_size//2)
+                        image = image[top:bottom, left:right]
+                        
                         image = cv2.resize(image, (224, 224))  # Make sure all images are resized to (224, 224)
                         image = np.array(image)
                         batch_images.append(image)
@@ -136,6 +147,7 @@ class CoralReefClassifier:
                 
                 batch_images = np.array(batch_images, dtype=np.float32) / 255.0
                 yield [batch_images, np.column_stack((batch_x_pos, batch_y_pos))], batch_labels
+
 
 
     def create_model(self):
