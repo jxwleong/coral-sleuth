@@ -16,9 +16,14 @@ __pycache__/
 # Ignore file that store proxy address which is sensitive infomration
 proxy.py
 
+<<<<<<< HEAD
 data/weights/convnext_tiny_notop.h5
 
 # But don't ignore .h5 files in the data directory
 # !/data/**/*.h5
+=======
+# But don't ignore .h5 files in the data directory
+!/data/**/*.h5
+>>>>>>> f90e3279475e47acca8bff49d32831b2b16ec13b
 !requirements.txt
 !tests/**/*.png
