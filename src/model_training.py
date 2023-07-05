@@ -25,20 +25,20 @@ logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
-    annotation_filename = "combined_annotations_about_40k_png_only_remapped.csv"
+    annotation_filename = "combined_annotations_about_40k_png_only_remapped_majority_class_with_1k_or_more.csv"
     annotation_name = annotation_filename.split(".")[0]
     annotation_filepath = os.path.join(ANNOTATION_DIR, annotation_filename)
 
     batch_size = 16
-    epoch = 2
+    epoch = 1
     
     logger.info(f"Device List: {device_lib.list_local_devices()}")
 
     metrics = {}
     # for each classifier
-    for model_type in ['efficientnet', 'efficientnetv2','vgg16', 'mobilenetv3', 'custom']:
+    #for model_type in ['efficientnet', 'efficientnetv2','vgg16', 'mobilenetv3', 'custom']:
     #for model_type in ['efficientnet', 'efficientnetv2']:
-    #for model_type in ['efficientnetv2']:
+    for model_type in ['efficientnetv2', 'mobilenetv3', 'convnexttiny']:
         classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_filepath, model_type)
         classifier.create_model()
         logger.info(f"Start model ({model_type}) training...")
