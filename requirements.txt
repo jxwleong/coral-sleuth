@@ -14,11 +14,7 @@ matplotlib==3.6.2
 imbalanced-learn==0.10.1
 
 # To write to excel
-<<<<<<< HEAD
 openpyxl==3.0.10
 
 # For data augmentation
 albumentations==1.3.1
-=======
-openpyxl==3.0.10
->>>>>>> f90e3279475e47acca8bff49d32831b2b16ec13b
