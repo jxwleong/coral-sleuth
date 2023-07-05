@@ -8,7 +8,7 @@ import logging
 import re 
 
 
-from keras.models import Model
+from keras.models import Model, load_model
 from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
 from keras.layers import Dense, GlobalAveragePooling2D, Conv2D, Flatten, concatenate, Input, MaxPooling2D
 from keras.utils import to_categorical
@@ -321,3 +321,24 @@ class CoralReefClassifier:
             else:
                 key_value_dict[key] = values
         return key_value_dict
+    
+    
+    def load_trained_model(self, model_file_path):
+        """
+        Loads a previously trained model from disk.
+        
+        Parameters:
+        model_file_path (str): The path to the model file.
+        """
+        self.model = load_model(model_file_path)
+
+        # Recompile the model to make sure the metrics are properly loaded
+        self.model.compile(
+            optimizer='adam', 
+            loss='categorical_crossentropy', 
+            metrics=[
+                Accuracy(), Precision(), Recall(), AUC(), 
+                TruePositives(), TrueNegatives(), FalsePositives(), 
+                FalseNegatives()
+            ]
+        )
