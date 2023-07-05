@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
-    annotation_filename = "combined_annotations_about_40k_png_only_remapped_majority_class_with_1k_or_more.csv"
+    annotation_filename = "combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample.csv"
     annotation_name = annotation_filename.split(".")[0]
     annotation_filepath = os.path.join(ANNOTATION_DIR, annotation_filename)
 
