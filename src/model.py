@@ -12,7 +12,7 @@ from keras.models import Model
 from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
 from keras.layers import Dense, GlobalAveragePooling2D, Conv2D, Flatten, concatenate, Input, MaxPooling2D
 from keras.utils import to_categorical
-from keras.applications import EfficientNetB0, VGG16, MobileNetV3Large, EfficientNetV2B0
+from keras.applications import EfficientNetB0, VGG16, MobileNetV3Large, EfficientNetV2B0, ConvNeXtTiny
 from sklearn.model_selection import train_test_split
 from PIL import Image
 from collections import Counter
@@ -42,7 +42,8 @@ class CoralReefClassifier:
         self.efficientnet_v2_b0_weight = os.path.join(WEIGHT_DIR, "efficientnetv2-b0_notop.h5")
         self.vgg16_weight = os.path.join(WEIGHT_DIR, "vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5")
         self.mobilenet_v3_weight = os.path.join(WEIGHT_DIR, "weights_mobilenet_v3_large_224_1.0_float.h5")
-
+        self.convnext_tiny_weight = os.path.join(WEIGHT_DIR, "convnext_tiny_notop.h5")
+        
         self.load_data()
 
     def load_data(self):
@@ -73,7 +74,7 @@ class CoralReefClassifier:
         single_sample_labels = np.where(label_counts == 1)[0]
         multi_sample_labels_count = len(unique_labels) - len(single_sample_labels)  # Number of labels with more than one sample
         
-        if len(single_sample_labels) != 0:
+        if list(single_sample_labels) != []:
             logger.warning(f"Skipping label {single_sample_labels} since it only contain one sample")
             
         self.label_skipped_count = len(single_sample_labels)
@@ -162,6 +163,12 @@ class CoralReefClassifier:
             base_model = MobileNetV3Large(weights=self.mobilenet_v3_weight, include_top=True)
             x = base_model(image_input)
             y = Dense(1024, activation='relu')(pos_input)  # MobileNetV3Large has 1024 output features
+        elif self.model_type == "convnexttiny":
+            base_model = ConvNeXtTiny(weights=self.convnext_tiny_weight, include_top=False)  # assuming this is the correct class name
+            x = base_model(image_input)
+            x = GlobalAveragePooling2D()(x)
+            y = Dense(512, activation='relu')(pos_input)  # adjust the size as per ConvNeXtTiny's output features
+
         elif self.model_type == "custom":
             x = Conv2D(16, (3, 3), activation='relu')(image_input)
             x = MaxPooling2D()(x)
