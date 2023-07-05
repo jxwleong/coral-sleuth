@@ -13,7 +13,7 @@ import sys
 ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", ".."))
 sys.path.insert(0, ROOT_DIR)
 from config.path import ANNOTATION_DIR, DATA_DIR, IMAGE_DIR, WEIGHT_DIR, MODEL_DIR
-from config.proxy import proxies
+
 
 efficientnet_b0_weight = os.path.join(WEIGHT_DIR, "efficientnetb0_notop.h5")
 efficientnet_v2_b0_weight = os.path.join(WEIGHT_DIR, "efficientnetv2-b0_notop.h5")
@@ -22,6 +22,8 @@ mobilenet_v3_weight = os.path.join(WEIGHT_DIR, "weights_mobilenet_v3_large_224_1
 convnext_tiny_weight = os.path.join(WEIGHT_DIR, "convnext_tiny_notop.h5")
         
 try:
+    # Import here else will break for GitHub Runner
+    from config.proxy import proxies
     # Set proxy
     os.environ['HTTP_PROXY'] = proxies["http"]
     os.environ['HTTPS_PROXY'] = proxies["https"]
@@ -82,4 +84,4 @@ for model_type in ["efficientnetv2", "vgg16", "mobilenetv3"]:  # add other model
     print(f"Training {model_type} model...")
     model = get_model(model_type)
     model.compile(optimizer=Adam(), loss='categorical_crossentropy', metrics=['accuracy'])
-    model.fit(datagen.flow(train_images, train_labels, batch_size=64), epochs=10, validation_data=(test_images, test_labels))
+    model.fit(datagen.flow(train_images, train_labels, batch_size=64), epochs=1, validation_data=(test_images, test_labels))
