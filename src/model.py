@@ -12,7 +12,11 @@ from keras.models import Model
 from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
 from keras.layers import Dense, GlobalAveragePooling2D, Conv2D, Flatten, concatenate, Input, MaxPooling2D
 from keras.utils import to_categorical
+<<<<<<< HEAD
 from keras.applications import EfficientNetB0, VGG16, MobileNetV3Large, EfficientNetV2B0, ConvNeXtTiny
+=======
+from keras.applications import EfficientNetB0, VGG16, MobileNetV3Large, EfficientNetV2B0
+>>>>>>> f90e3279475e47acca8bff49d32831b2b16ec13b
 from sklearn.model_selection import train_test_split
 from PIL import Image
 from collections import Counter
@@ -42,8 +46,12 @@ class CoralReefClassifier:
         self.efficientnet_v2_b0_weight = os.path.join(WEIGHT_DIR, "efficientnetv2-b0_notop.h5")
         self.vgg16_weight = os.path.join(WEIGHT_DIR, "vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5")
         self.mobilenet_v3_weight = os.path.join(WEIGHT_DIR, "weights_mobilenet_v3_large_224_1.0_float.h5")
+<<<<<<< HEAD
         self.convnext_tiny_weight = os.path.join(WEIGHT_DIR, "convnext_tiny_notop.h5")
         
+=======
+
+>>>>>>> f90e3279475e47acca8bff49d32831b2b16ec13b
         self.load_data()
 
     def load_data(self):
@@ -74,7 +82,11 @@ class CoralReefClassifier:
         single_sample_labels = np.where(label_counts == 1)[0]
         multi_sample_labels_count = len(unique_labels) - len(single_sample_labels)  # Number of labels with more than one sample
         
+<<<<<<< HEAD
         if list(single_sample_labels) != []:
+=======
+        if len(single_sample_labels) != 0:
+>>>>>>> f90e3279475e47acca8bff49d32831b2b16ec13b
             logger.warning(f"Skipping label {single_sample_labels} since it only contain one sample")
             
         self.label_skipped_count = len(single_sample_labels)
@@ -107,7 +119,11 @@ class CoralReefClassifier:
         logger.info(f"Loaded {self.unique_image_count} images with {len(self.image_paths)} annotations and {self.number_labels_to_train} labels\n")
 
 
+<<<<<<< HEAD
     def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size, block_size=224):
+=======
+    def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size):
+>>>>>>> f90e3279475e47acca8bff49d32831b2b16ec13b
         while True:
             for i in range(0, len(image_paths), batch_size):
                 batch_image_paths = image_paths[i:i+batch_size]
@@ -116,13 +132,18 @@ class CoralReefClassifier:
                 batch_y_pos = y_pos[i:i+batch_size]
                 
                 batch_images = []
+<<<<<<< HEAD
                 for idx, image_path in enumerate(batch_image_paths):
+=======
+                for image_path in batch_image_paths:
+>>>>>>> f90e3279475e47acca8bff49d32831b2b16ec13b
                     try:
                         image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
                         if image is None:
                             logger.error(f'Error processing image {image_path}: could not be read by cv2.imread')
                             continue
                         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+<<<<<<< HEAD
                         
                         # Create segment from image
                         height, width, _ = image.shape
@@ -134,6 +155,8 @@ class CoralReefClassifier:
                         bottom = min(height, y + block_size//2)
                         image = image[top:bottom, left:right]
                         
+=======
+>>>>>>> f90e3279475e47acca8bff49d32831b2b16ec13b
                         image = cv2.resize(image, (224, 224))  # Make sure all images are resized to (224, 224)
                         image = np.array(image)
                         batch_images.append(image)
@@ -149,7 +172,10 @@ class CoralReefClassifier:
                 yield [batch_images, np.column_stack((batch_x_pos, batch_y_pos))], batch_labels
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> f90e3279475e47acca8bff49d32831b2b16ec13b
     def create_model(self):
         image_input = Input(shape=(224, 224, 3))
         pos_input = Input(shape=(2,))
@@ -175,12 +201,15 @@ class CoralReefClassifier:
             base_model = MobileNetV3Large(weights=self.mobilenet_v3_weight, include_top=True)
             x = base_model(image_input)
             y = Dense(1024, activation='relu')(pos_input)  # MobileNetV3Large has 1024 output features
+<<<<<<< HEAD
         elif self.model_type == "convnexttiny":
             base_model = ConvNeXtTiny(weights=self.convnext_tiny_weight, include_top=False)  # assuming this is the correct class name
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
             y = Dense(512, activation='relu')(pos_input)  # adjust the size as per ConvNeXtTiny's output features
 
+=======
+>>>>>>> f90e3279475e47acca8bff49d32831b2b16ec13b
         elif self.model_type == "custom":
             x = Conv2D(16, (3, 3), activation='relu')(image_input)
             x = MaxPooling2D()(x)
