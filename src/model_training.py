@@ -23,36 +23,21 @@ from src.utils import logging_config, excel
 
 logger = logging.getLogger(__name__)
 
+def train_and_evaluate_models(
+    annotation_filepath,
+    annotation_name,
+    annotation_filename,
+    batch_size,
+    epoch,
+    model_types=['efficientnetv2']
+):
 
-if __name__ == "__main__":
-<<<<<<< HEAD
-    annotation_filename = "combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample.csv"
-=======
-    annotation_filename = "combined_annotations_about_40k_png_only_remapped.csv"
->>>>>>> f90e3279475e47acca8bff49d32831b2b16ec13b
-    annotation_name = annotation_filename.split(".")[0]
-    annotation_filepath = os.path.join(ANNOTATION_DIR, annotation_filename)
-
-    batch_size = 16
-<<<<<<< HEAD
-    epoch = 1
-=======
-    epoch = 2
->>>>>>> f90e3279475e47acca8bff49d32831b2b16ec13b
-    
     logger.info(f"Device List: {device_lib.list_local_devices()}")
 
     metrics = {}
-    # for each classifier
-<<<<<<< HEAD
-    #for model_type in ['efficientnet', 'efficientnetv2','vgg16', 'mobilenetv3', 'custom']:
-    #for model_type in ['efficientnet', 'efficientnetv2']:
-    for model_type in ['efficientnetv2', 'mobilenetv3', 'convnexttiny']:
-=======
-    for model_type in ['efficientnet', 'efficientnetv2','vgg16', 'mobilenetv3', 'custom']:
-    #for model_type in ['efficientnet', 'efficientnetv2']:
-    #for model_type in ['efficientnetv2']:
->>>>>>> f90e3279475e47acca8bff49d32831b2b16ec13b
+    
+    for model_type in model_types:
+
         classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_filepath, model_type)
         classifier.create_model()
         logger.info(f"Start model ({model_type}) training...")
@@ -70,19 +55,14 @@ if __name__ == "__main__":
         logger.info("Evaluating the model now...")
 
         # Get model metrics
-        #model_metrics = classifier.get_evaluation_metrics(batch_size=batch_size)
         model_metrics = {}
         
-        # training_metrics will contain the training metrics and val metrics as well
-        # as it is history object
         metrics[f"{model_type}"] = classifier.normalize_metric_names(training_metrics)
-        # Make sure already run model.train to get this attribute
         model_metrics["traning_time_in_seconds"] = classifier.training_time
 
         model_metrics["batch_size"] = batch_size
         model_metrics["epoch"] = epoch
 
-        # Added some information regarding the dataset/ annotation files
         model_metrics["annotation_file"] = annotation_filename
         model_metrics["images_count"] = classifier.unique_image_count
         model_metrics["annotation_count"] = len(classifier.image_paths)
@@ -94,7 +74,7 @@ if __name__ == "__main__":
         # Save metrics to a JSON file
         metrics_file = os.path.join(
             MODEL_DIR,
-            f'coral_reef_classifier_epoch_{epoch}_1_batchsize_{batch_size}_metrics_{annotation_name}.json'
+            f'coral_reef_classifier_epoch_{epoch}_batchsize_{batch_size}_metrics_{annotation_name}.json'
         )
         
         logger.info("\n" + json.dumps(metrics, indent=4))
@@ -105,9 +85,110 @@ if __name__ == "__main__":
         
     excel_file = os.path.join(
         MODEL_DIR,
-        f'coral_reef_classifier_epoch_{epoch}_1_batchsize_{batch_size}_metrics_{annotation_name}.xlsx'
+        f'coral_reef_classifier_epoch_{epoch}_batchsize_{batch_size}_metrics_{annotation_name}.xlsx'
     )
     excel.dict_to_excel(metrics, excel_file, "model_name")
     excel.append_label_distribution_to_excel(annotation_filepath, excel_file)
     logger.info(f"Evaluation metrics in excel format saved: {excel_file}")
 
+
+def continue_training_models(
+    h5_model_file,
+    annotation_filepath,
+    annotation_name,
+    annotation_filename,
+    batch_size,
+    additional_epochs,
+):
+
+    logger.info(f"Device List: {device_lib.list_local_devices()}")
+
+    metrics = {}
+
+    classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_filepath, "pretrained")
+
+    logger.info(f"Loading model from {h5_model_file}...")
+    classifier.load_trained_model(h5_model_file)
+
+    logger.info(f"Continuing model training...")
+    training_metrics = classifier.train(batch_size=batch_size, epochs=additional_epochs)
+
+    logger.info(f"Training model DONE!")
+    model_file = os.path.join(
+        MODEL_DIR, 
+        f'coral_reef_classifier_continued_epoch_{additional_epochs}_batchsize_{batch_size}_{annotation_name}.h5'
+    )
+    classifier.save_model(model_file)
+
+    logger.info(f"{model_file} SAVED!")
+
+    logger.info("Evaluating the model now...")
+
+    model_metrics = {}
+
+    model_metrics = classifier.normalize_metric_names(training_metrics)
+    model_metrics["traning_time_in_seconds"] = classifier.training_time
+
+    model_metrics["batch_size"] = batch_size
+    model_metrics["epoch"] = additional_epochs
+
+    model_metrics["annotation_file"] = annotation_filename
+    model_metrics["images_count"] = classifier.unique_image_count
+    model_metrics["annotation_count"] = len(classifier.image_paths)
+    model_metrics["annotation_label_count"] = classifier.number_labels_to_train
+    model_metrics["annotation_label_skipped_count"] = classifier.label_skipped_count
+
+    metrics.update(model_metrics)
+
+    metrics_file = os.path.join(
+        MODEL_DIR,
+        f'coral_reef_classifier_continued_epoch_{additional_epochs}_batchsize_{batch_size}_metrics_{annotation_name}.json'
+    )
+
+    logger.info("\n" + json.dumps(metrics, indent=4))
+    with open(metrics_file, 'w') as f:
+        json.dump(metrics, f, indent=4)
+
+    logger.info(f"Evaluation metrics saved: {metrics_file}")
+
+    excel_file = os.path.join(
+        MODEL_DIR,
+        f'coral_reef_classifier_continued_epoch_{additional_epochs}_batchsize_{batch_size}_metrics_{annotation_name}.xlsx'
+    )
+    excel.dict_to_excel(metrics, excel_file, "model_name")
+    excel.append_label_distribution_to_excel(annotation_filepath, excel_file)
+    logger.info(f"Evaluation metrics in excel format saved: {excel_file}")
+
+
+
+if __name__ == "__main__":
+    annotation_filename = "combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample.csv"
+    annotation_name = annotation_filename.split(".")[0]
+    annotation_filepath = os.path.join(ANNOTATION_DIR, annotation_filename)
+    
+    h5_model_file = r"C:\Users\ad_xleong\Desktop\coral-sleuth\models\coral_reef_classifier_efficientnetv2_full_epoch_10_1_batchsize_16_combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample.h5"
+
+    batch_size = 16
+    epoch = 1
+    additional_epochs = 10
+    
+    """
+    train_and_evaluate_models(
+        annotation_filepath,
+        annotation_name,
+        annotation_filename,
+        batch_size,
+        epoch,
+        model_types=['efficientnetv2']
+    )
+    
+    """
+    
+    continue_training_models(
+        h5_model_file,
+        annotation_filepath,
+        annotation_name,
+        annotation_filename,
+        batch_size,
+        additional_epochs,
+    )
