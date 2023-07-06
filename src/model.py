@@ -9,7 +9,7 @@ import re
 
 
 from keras.models import Model, load_model
-from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
+from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives, F1Score
 from keras.layers import Dense, GlobalAveragePooling2D, Conv2D, Flatten, concatenate, Input, MaxPooling2D
 from keras.utils import to_categorical
 from keras.applications import EfficientNetB0, VGG16, MobileNetV3Large, EfficientNetV2B0, ConvNeXtTiny
@@ -202,7 +202,7 @@ class CoralReefClassifier:
             metrics=[
                 Accuracy(), Precision(), Recall(), AUC(), 
                 TruePositives(), TrueNegatives(), FalsePositives(), 
-                FalseNegatives()
+                FalseNegatives(), F1Score()
             ]
         )
 
@@ -317,7 +317,7 @@ class CoralReefClassifier:
                 key_value_dict[key] = values[-1]
             # If value is a dictionary, then recursively call the function
             elif isinstance(values, dict):
-                key_value_dict[key] = convert_to_key_value_pairs(values)
+                key_value_dict[key] = self.convert_to_key_value_pairs(values)
             else:
                 key_value_dict[key] = values
         return key_value_dict
@@ -339,6 +339,6 @@ class CoralReefClassifier:
             metrics=[
                 Accuracy(), Precision(), Recall(), AUC(), 
                 TruePositives(), TrueNegatives(), FalsePositives(), 
-                FalseNegatives()
+                FalseNegatives(), F1Score()
             ]
         )
