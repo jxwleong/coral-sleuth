@@ -6,6 +6,7 @@
   - [EfficientNetV2](#efficient-net-v2)
   - [MobileNetV3](#mobilenet-v3)
   - [ConvNet](#convnet)
+  - [Model Selection and Training](#model-selection-and-training)
 - [Dataset](#dataset)
 - [Reference](#reference)
   
@@ -33,9 +34,42 @@ Through these elements, "Coral Sleuth" aims to provide a valuable tool that can 
 <br/><br/>
 <!-- omit in toc -->
 ## <a name="model"></a> Model [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
-### <a name="#efficient-net-v2"></a> EfficientNet V2 [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
-### <a name="#mobilenet-v3"></a> MobileNet V3 [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
-### <a name="#convnet"></a> ConvNeXt [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
+In this project, I will initially focus on training three state-of-the-art models, EfficientNet V2, MobileNet V3, and ConvNeXt, on a subset of the complete dataset. These models have been chosen due to their established capabilities and strong performance in a variety of image classification tasks.
+
+By starting with a smaller dataset, my goal is to quickly evaluate and compare the performance of these three models. This approach allows me to save computational resources while rapidly identifying the most promising model for the specific task at hand.
+
+Once the best performing model is identified based on its accuracy, precision, recall, and other key metrics, the next step will be to fine-tune this model using the complete dataset. Fine-tuning is expected to further enhance the model's performance, improving its capability to classify coral reef images accurately and efficiently.
+
+In future steps, I plan to continually assess the model's performance, making necessary adjustments to optimize its predictions. This iterative process is crucial for ensuring the model's ongoing learning and adaptation, thereby improving its performance and contributing to the advancement of coral reef classification and conservation efforts.
+
+| Model            | Size (MB) | Top-1 Accuracy | Top-5 Accuracy | Parameters | Depth | Time (ms) per inference step (CPU) | Time (ms) per inference step (GPU) |
+|------------------|-----------|----------------|----------------|------------|-------|------------------------------------|------------------------------------|
+| EfficientNet V2B0| 29        | 78.7%          | 94.3%          | 7.2M       | -     | -                                  | -                                  |
+| EfficientNet V2B1| 34        | 79.8%          | 95.0%          | 8.2M       | -     | -                                  | -                                  |
+| EfficientNet V2B2| 42        | 80.5%          | 95.1%          | 10.2M      | -     | -                                  | -                                  |
+| EfficientNet V2B3| 59        | 82.0%          | 95.8%          | 14.5M      | -     | -                                  | -                                  |
+| EfficientNet V2S | 88        | 83.9%          | 96.7%          | 21.6M      | -     | -                                  | -                                  |
+| EfficientNet V2M | 220       | 85.3%          | 97.4%          | 54.4M      | -     | -                                  | -                                  |
+| EfficientNet V2L | 479       | 85.7%          | 97.5%          | 119.0M     | -     | -                                  | -                                  |
+| MobileNet V3     | -         | -              | -              | -          | -     | -                                  | -                                  |
+| ConvNeXtTiny     | 109.42    | 81.3%          | -              | 28.6M      | -     | -                                  | -                                  |
+| ConvNeXtSmall    | 192.29    | 82.3%          | -              | 50.2M      | -     | -                                  | -                                  |
+| ConvNeXtBase     | 338.58    | 85.3%          | -              | 88.5M      | -     | -                                  | -                                  |
+| ConvNeXtLarge    | 755.07    | 86.3%          | -              | 197.7M     | -     | -                                  | -                                  |
+| ConvNeXtXLarge   | 1310      | 86.7%          | -              | 350.1M     | -     | -                                  | -                                  |
+Reference: https://keras.io/api/applications/ 
+
+<br/><br/>
+
+### <a name="efficient-net-v2"></a> EfficientNet V2 [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
+### <a name="mobilenet-v3"></a> MobileNet V3 [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
+### <a name="convnet"></a> ConvNeXt [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
+
+<br/><br/>
+<!-- omit in toc -->
+### <a name="model-selection-and-training"></a> 
+Model Selection and Training [<sub><sup>Back to Table of Contents</sup></sub>](#toc)  
+
 
 <br/><br/>
 <!-- omit in toc -->
