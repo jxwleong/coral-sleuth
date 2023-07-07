@@ -29,7 +29,7 @@ def train_and_evaluate_models(
     annotation_filename,
     batch_size,
     epoch,
-    model_types=['efficientnetv2']
+    model_types
 ):
 
     logger.info(f"Device List: {device_lib.list_local_devices()}")
@@ -168,18 +168,18 @@ if __name__ == "__main__":
     
     h5_model_file = r"C:\Users\ad_xleong\Desktop\coral-sleuth\models\coral_reef_classifier_efficientnetv2_full_epoch_10_1_batchsize_16_combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample.h5"
 
-    batch_size = 16
+    batch_size = 32
     epoch = 1
     additional_epochs = 10
     
-    """
+    
     train_and_evaluate_models(
         annotation_filepath,
         annotation_name,
         annotation_filename,
         batch_size,
         epoch,
-        model_types=['efficientnetv2']
+        model_types=['efficientnetv2', 'mobilenetv3', 'convnexttiny']
     )
     
     """
@@ -192,3 +192,4 @@ if __name__ == "__main__":
         batch_size,
         additional_epochs,
     )
+    """
