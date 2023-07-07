@@ -2,7 +2,13 @@
 
 ## <a name="toc"></a> Table of Contents
 - [Overview](#overview)
+- [Model](#model)
+  - [EfficientNetV2](#efficient-net-v2)
+  - [MobileNetV3](#mobilenet-v3)
+  - [ConvNet](#convnet)
 - [Dataset](#dataset)
+- [Reference](#reference)
+  
 
 
 <br/><br/>
@@ -24,6 +30,12 @@ The project comprises the following key components:
 
 Through these elements, "Coral Sleuth" aims to provide a valuable tool that can assist in the study, preservation, and management of coral species, supporting global efforts to protect and conserve our invaluable coral reef ecosystems.
 
+<br/><br/>
+<!-- omit in toc -->
+## <a name="model"></a> Model [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
+### <a name="#efficient-net-v2"></a> EfficientNet V2 [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
+### <a name="#mobilenet-v3"></a> MobileNet V3 [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
+### <a name="#convnet"></a> ConvNeXt [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
 
 <br/><br/>
 <!-- omit in toc -->
@@ -33,8 +45,8 @@ The data used in this project is a combination of two datasets from CoralNet and
 
 <br/>
 
-### Source 1: CoralNet
-CoralNet (source: [CoralNet Source](https://coralnet.ucsd.edu/source/2091/)) is a place where scientists and researchers share pictures of coral reefs. These pictures come from all over the world, and the one we are using for our project is from around Okinawa, which is an island in Japan.
+### Source 1: [CoralNet](https://coralnet.ucsd.edu/source/2091/) 
+CoralNet is a place where scientists and researchers share pictures of coral reefs. These pictures come from all over the world, and the one we are using for our project is from around Okinawa, which is an island in Japan.
 
 The pictures in this dataset show different types of corals, underwater creatures, and even algae. Each picture also has labels that tell you what's in the picture. This is really helpful if you're trying to teach a computer to recognize different types of corals and underwater life.
 
@@ -44,8 +56,8 @@ Label List: https://coralnet.ucsd.edu/label/list/
 
 <br/>
 
-### Source 2: MCR LTER 
-MCR LTER (source: http://mcr.lternet.edu/cgi-bin/showDataset.cgi?docid=knb-lter-mcr.5006) The Moorea Coral Reef LTER is a subset of the MCR LTER dedicated to fostering extensive research in the field of coral reef ecosystems. The dataset includes 2055 images captured from three distinct habitats over the years 2008, 2009, and 2010.
+### Source 2: [MCR LTER](http://mcr.lternet.edu/cgi-bin/showDataset.cgi?docid=knb-lter-mcr.5006)
+The Moorea Coral Reef LTER is a subset of the MCR LTER dedicated to fostering extensive research in the field of coral reef ecosystems. The dataset includes 2055 images captured from three distinct habitats over the years 2008, 2009, and 2010.
 
 The images feature annotations for nine primary labels, four of which are non-coral: Crustose Coralline Algae (CCA), Turf Algae, Macroalgae, and Sand, and five are coral genera: Acropora, Pavona, Montipora, Pocillopora, and Porites. These labels cover a whopping 96% of all the annotations, resulting in nearly 400,000 points.
 
@@ -58,9 +70,66 @@ The research and collection of these data have been made possible through the su
 ### Data Composition
 The dataset contains **[4385]** images, where each image is associated with a label indicating the type of coral. There are a total of **[8]** distinct coral types/classes in the dataset. The data has been preprocessed and split into training and validation sets. Each image has a corresponding position coordinate.
 
+Full combined annotation label distribution of [combined_annotations_remapped.csv](data/annotations/combined_annotations_remapped.csv)
+<details>   
+<summary>Click to expand!</summary>
+
+```
+Label distribution:
+crustose_coralline_algae    226017
+turf                         43769
+sand                         38880
+porites                      35236
+macroalgae                   23832
+off                          13605
+pocillopora                  11319
+montipora                     8755
+pavona                        5806
+acropora                      3458
+hard_substrate                2086
+millepora                     1459
+broken_coral_rubble           1025
+montastraea                    645
+leptastrea                     528
+soft                           280
+bad                            259
+goniastrea                     198
+dark                           191
+fungia                         160
+algae                          142
+astreopora                     129
+gardineroseris                 123
+herpolitha                      81
+dead_coral                      52
+favia                           47
+lobophyllia                     47
+soft_coral                      38
+platygyra                       26
+rock                            24
+echinopora                      24
+cyphastrea                      18
+acanthastrea                    16
+green_fleshy_algae               8
+psammocora                       7
+stylophora                       7
+favites                          6
+leptoseris                       4
+sandolitha                       2
+tuba                             1
+```
+</details>   
+
 <br/>
 
 ### Usage
 This dataset is used in our project to train and evaluate the performance of our coral reef classification model. By leveraging these rich, annotated datasets, the model can learn to identify different types of coral reefs from images and associated position data.
 
 Please refer to the Kaggle page linked above for download instructions and more detailed information about the data.
+
+
+<br/><br/>
+
+## <a name="reference"></a> Reference [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
+1. [EfficientNetV2: Smaller Models and Faster Training](https://arxiv.org/abs/2104.00298v3)
+2. [Searching for MobileNetV3](https://arxiv.org/abs/1905.02244)
+3. [A ConvNet for the 2020s](https://arxiv.org/abs/2201.03545)
