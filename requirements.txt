@@ -7,6 +7,10 @@ Pillow==9.3.0
 scikit_learn==1.2.2
 tensorflow==2.12.0
 
+# To use GPU for Windows Native, we need to use tensorflow version <2.11
+# https://www.tensorflow.org/install/pip#windows-native_1
+# tensorflow<2.11
+
 # For label distribution plot
 matplotlib==3.6.2
 
