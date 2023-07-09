@@ -8,6 +8,8 @@
   - [ConvNet](#convnet)
   - [Model Selection and Training](#model-selection-and-training)
 - [Dataset](#dataset)
+- [Environment and Setup](#environment-and-setup)
+  - [Setup NVIDIA GPU][#setup-nvidia-gpu]
 - [Reference](#reference)
   
 
@@ -57,6 +59,7 @@ In future steps, I plan to continually assess the model's performance, making ne
 | ConvNeXtBase     | 338.58    | 85.3%          | -              | 88.5M      | -     | -                                  | -                                  |
 | ConvNeXtLarge    | 755.07    | 86.3%          | -              | 197.7M     | -     | -                                  | -                                  |
 | ConvNeXtXLarge   | 1310      | 86.7%          | -              | 350.1M     | -     | -                                  | -                                  |
+
 Reference: https://keras.io/api/applications/ 
 
 <br/><br/>
@@ -160,6 +163,34 @@ This dataset is used in our project to train and evaluate the performance of our
 
 Please refer to the Kaggle page linked above for download instructions and more detailed information about the data.
 
+<br/><br/>
+### <a name="environment-and-setup"></a> Environment and Setup] [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
+#### <a name="setup-nvidia-gpu"></a> Setup NVIDIA GPU [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
+---
+ ***NOTE***: If you are training the model in Windows. There are specific version of the libraries or
+ toolkit you have to used as specified in [[4]](https://www.tensorflow.org/install/pip#windows-native_1).
+
+ - Tensorflow: "Anything above 2.10 is not supported on the GPU on Windows Native". Use command `pip install "tensorflow<2.11"` to install.
+ - CUDA Toolkit: [v11.2](https://developer.nvidia.com/cuda-11.2.0-download-archive)
+ - cuDNN: [v8.1.0](https://developer.download.nvidia.com/compute/redist/cudnn/v8.1.0/)
+
+---
+
+Setting up your environment to run deep learning models requires some specific steps, especially when using a GPU for computation. In this section, we will cover the steps required to set up an NVIDIA GPU on a Windows machine.
+
+1. **Check your GPU**: Before setting up the GPU, you must confirm whether your system has an NVIDIA GPU with CUDA support. You can do this by checking this website https://developer.nvidia.com/cuda-gpus.
+2. **Install NVIDIA GPU driver**: Visit the NVIDIA Driver Downloads page (https://www.nvidia.com/download/index.aspx), select your GPU model from the list, and download the driver. Run the downloaded file and follow the prompts to install the driver. Reboot your computer once the installation is complete.
+3. **Install CUDA Toolkit**: CUDA is a parallel computing platform and programming model developed by NVIDIA for general computing on GPUs. You can download the CUDA Toolkit from the NVIDIA website (https://developer.nvidia.com/cuda-toolkit). Be sure to select the version that is compatible with your system and the deep learning framework you plan to use (TensorFlow, PyTorch, etc.).
+4. **Install cuDNN**: The NVIDIA CUDA Deep Neural Network library (cuDNN) is a GPU-accelerated library of primitives for deep neural networks, which is also required for running most of the deep learning frameworks. After downloading the appropriate version from the NVIDIA cuDNN page (https://developer.download.nvidia.com/compute/redist/cudnn/), you can install it by copying the extracted files to the CUDA Toolkit directory.
+5. **Configure the Environment Variables**: After successfully installing CUDA and cuDNN, add their bin directories to the PATH environment variable. You can do this by navigating to 'Environment Variables' in your system settings, and then appending the paths of CUDA and cuDNN to the PATH variable.
+6. **Verify the installation**:
+   - Verify the CUDA toolkit and cuDNN installation: 
+     - Open the command prompt and type nvcc -V. This should return the CUDA compiler version if the installation was successful. You could also verify the installation by running a simple CUDA program or a deep learning model using your chosen framework. 
+   - Verify Tensorflow package installation:
+     - Run the following command in CMD:
+       - `python -c "import tensorflow as tf; print(tf.test.is_built_with_cuda())`. If it returns `True`, then the installation is correct. Otherwise, try to reinstall the tensorflow package via pip.
+       - `python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))`. This command will return the information about the GPU of the system. If it return empty list (`[]`), please try to reinstall tensorflow package.
+
 
 <br/><br/>
 
@@ -167,3 +198,4 @@ Please refer to the Kaggle page linked above for download instructions and more 
 1. [EfficientNetV2: Smaller Models and Faster Training](https://arxiv.org/abs/2104.00298v3)
 2. [Searching for MobileNetV3](https://arxiv.org/abs/1905.02244)
 3. [A ConvNet for the 2020s](https://arxiv.org/abs/2201.03545)
+4. [Install TensorFlow with pip: Windows Native](https://www.tensorflow.org/install/pip#windows-native_1)
