@@ -70,7 +70,11 @@ class CoralReefClassifier:
         self.labels = np.array([label_mapping[label] for label in self.labels])
 
         # Filter out classes with only one sample
-        label_counts = np.bincount(self.labels)
+        # line 73, in load_data
+        # label_counts = np.bincount(self.labels)
+        # File "<__array_function__ internals>", line 180, in bincount
+        # TypeError: Cannot cast array data from dtype('float64') to dtype('int64') according to the rule 'safe'
+        label_counts = np.bincount(self.labels.astype('int64'))
         single_sample_labels = np.where(label_counts == 1)[0]
         multi_sample_labels_count = len(unique_labels) - len(single_sample_labels)  # Number of labels with more than one sample
         
