@@ -9,7 +9,7 @@
   - [Model Selection and Training](#model-selection-and-training)
 - [Dataset](#dataset)
 - [Environment and Setup](#environment-and-setup)
-  - [Setup NVIDIA GPU][#setup-nvidia-gpu]
+  - [Setup NVIDIA GPU](#setup-nvidia-gpu)
 - [Reference](#reference)
   
 
@@ -166,15 +166,15 @@ Please refer to the Kaggle page linked above for download instructions and more 
 <br/><br/>
 ### <a name="environment-and-setup"></a> Environment and Setup] [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
 #### <a name="setup-nvidia-gpu"></a> Setup NVIDIA GPU [<sub><sup>Back to Table of Contents</sup></sub>](#toc)
----
- ***NOTE***: If you are training the model in Windows. There are specific version of the libraries or
+
+> ***NOTE***: If you are training the model in Windows. There are specific version of the libraries or
  toolkit you have to used as specified in [[4]](https://www.tensorflow.org/install/pip#windows-native_1).
+>
+> - Tensorflow: "Anything above 2.10 is not supported on the GPU on Windows Native". Use command `pip install "tensorflow<2.11"` to install.
+> - CUDA Toolkit: [v11.2](https://developer.nvidia.com/cuda-11.2.0-download-archive)
+> - cuDNN: [v8.1.0](https://developer.download.nvidia.com/compute/redist/cudnn/v8.1.0/)
 
- - Tensorflow: "Anything above 2.10 is not supported on the GPU on Windows Native". Use command `pip install "tensorflow<2.11"` to install.
- - CUDA Toolkit: [v11.2](https://developer.nvidia.com/cuda-11.2.0-download-archive)
- - cuDNN: [v8.1.0](https://developer.download.nvidia.com/compute/redist/cudnn/v8.1.0/)
 
----
 
 Setting up your environment to run deep learning models requires some specific steps, especially when using a GPU for computation. In this section, we will cover the steps required to set up an NVIDIA GPU on a Windows machine.
 
