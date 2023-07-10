@@ -111,7 +111,7 @@ class CoralReefClassifier:
         logger.info(f"Loaded {self.unique_image_count} images with {len(self.image_paths)} annotations and {self.number_labels_to_train} labels\n")
 
 
-    def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size, block_size=224):
+    def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size, scale=0.25):
         while True:
             for i in range(0, len(image_paths), batch_size):
                 batch_image_paths = image_paths[i:i+batch_size]
@@ -128,16 +128,22 @@ class CoralReefClassifier:
                             continue
                         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                         
+                        # Extract center of the bounding box
+                        x_center = int(batch_x_pos[idx])
+                        y_center = int(batch_y_pos[idx])
+                        
                         # Create segment from image
                         height, width, _ = image.shape
-                        x = int(batch_x_pos[idx])
-                        y = int(batch_y_pos[idx])
-                        left = max(0, x - block_size//2)
-                        right = min(width, x + block_size//2)
-                        top = max(0, y - block_size//2)
-                        bottom = min(height, y + block_size//2)
-                        image = image[top:bottom, left:right]
+                        half_width = int(width * scale) // 2
+                        half_height = int(height * scale) // 2
+
+                        x_min = max(0, x_center - half_width)
+                        y_min = max(0, y_center - half_height)
+                        x_max = min(width, x_center + half_width)
+                        y_max = min(height, y_center + half_height)
                         
+                        image = image[y_min:y_max, x_min:x_max]
+
                         image = cv2.resize(image, (224, 224))  # Make sure all images are resized to (224, 224)
                         image = np.array(image)
                         batch_images.append(image)
@@ -150,55 +156,42 @@ class CoralReefClassifier:
                     continue
                 
                 batch_images = np.array(batch_images, dtype=np.float32) / 255.0
-                yield [batch_images, np.column_stack((batch_x_pos, batch_y_pos))], batch_labels
+                yield batch_images, batch_labels
 
 
     def create_model(self):
         image_input = Input(shape=(224, 224, 3))
-        pos_input = Input(shape=(2,))
-
-        y = Dense(16, activation='relu')(pos_input)
 
         if self.model_type == "efficientnet":
             base_model = EfficientNetB0(weights=self.efficientnet_b0_weight, include_top=False)
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
-            y = Dense(1280, activation='relu')(pos_input)
         elif self.model_type == "efficientnetv2":
             base_model = EfficientNetV2B0(weights=self.efficientnet_v2_b0_weight, include_top=False)
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
-            y = Dense(1280, activation='relu')(pos_input)
         elif self.model_type == "vgg16":
             base_model = VGG16(weights=self.vgg16_weight, include_top=False)
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
-            y = Dense(512, activation='relu')(pos_input)
         elif self.model_type == "mobilenetv3":
             base_model = MobileNetV3Large(weights=self.mobilenet_v3_weight, include_top=True)
             x = base_model(image_input)
-            y = Dense(1024, activation='relu')(pos_input)  # MobileNetV3Large has 1024 output features
         elif self.model_type == "convnexttiny":
             base_model = ConvNeXtTiny(weights=self.convnext_tiny_weight, include_top=False)  # assuming this is the correct class name
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
-            y = Dense(512, activation='relu')(pos_input)  # adjust the size as per ConvNeXtTiny's output features
-
         elif self.model_type == "custom":
             x = Conv2D(16, (3, 3), activation='relu')(image_input)
             x = MaxPooling2D()(x)
             x = Conv2D(32, (3, 3), activation='relu')(x)
             x = GlobalAveragePooling2D()(x)
-            y = Dense(32, activation='relu')(pos_input)
         else:
             raise ValueError('Invalid model type')
 
-        combined = concatenate([x, y])
-
         # Use the stored number of unique labels here
-        output = Dense(self.n_unique_labels, activation='softmax')(combined)
-        self.model = Model(inputs=[image_input, pos_input], outputs=output)
-
+        output = Dense(self.n_unique_labels, activation='softmax')(x)
+        self.model = Model(inputs=[image_input], outputs=output)
 
         self.model.compile(
             optimizer='adam', 
@@ -209,6 +202,7 @@ class CoralReefClassifier:
                 FalseNegatives()
             ]
         )
+
 
 
     def train(self, batch_size, epochs):
