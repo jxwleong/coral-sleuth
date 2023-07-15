@@ -9,6 +9,7 @@ import re
 
 
 from keras.models import Model, load_model
+from keras.callbacks import CSVLogger
 from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
 from keras.layers import Dense, GlobalAveragePooling2D, Conv2D, Flatten, concatenate, Input, MaxPooling2D
 from keras.utils import to_categorical
@@ -26,13 +27,15 @@ from config.path import ANNOTATION_DIR, DATA_DIR, IMAGE_DIR, WEIGHT_DIR, MODEL_D
 logger = logging.getLogger(__name__)
 
 class CoralReefClassifier:
-    def __init__(self, root_dir, data_dir, image_dir, annotation_file, model_type):
+    def __init__(self, root_dir, data_dir, image_dir, annotation_file, model_type, image_scale=0.2):
         self.root_dir = root_dir
         self.data_dir = data_dir
         self.image_dir = image_dir
         self.annotation_file = annotation_file
+        self.annotation_filename = os.path.basename(self.annotation_file)
         self.model_type = model_type
         self.image_paths = []
+        self.image_scale = image_scale  # Scale used to crop image
         self.labels = []
         self.x_pos = []
         self.y_pos = []
@@ -111,7 +114,7 @@ class CoralReefClassifier:
         logger.info(f"Loaded {self.unique_image_count} images with {len(self.image_paths)} annotations and {self.number_labels_to_train} labels\n")
 
 
-    def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size, scale=0.25):
+    def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size):
         while True:
             for i in range(0, len(image_paths), batch_size):
                 batch_image_paths = image_paths[i:i+batch_size]
@@ -134,8 +137,8 @@ class CoralReefClassifier:
                         
                         # Create segment from image
                         height, width, _ = image.shape
-                        half_width = int(width * scale) // 2
-                        half_height = int(height * scale) // 2
+                        half_width = int(width * self.image_scale) // 2
+                        half_height = int(height * self.image_scale) // 2
 
                         x_min = max(0, x_center - half_width)
                         y_min = max(0, y_center - half_height)
@@ -213,6 +216,11 @@ class CoralReefClassifier:
         logger.info(f"Epochs: {epochs}, Batch Size: {batch_size}\n")
         steps_per_epoch = len(self.image_paths_train) // batch_size
         validation_steps = len(self.image_paths_val) // batch_size
+        
+        csv_logger_filename = f"coral_reef_classifier_epoch_{epochs}_batchsize_{batch_size}_metrics_{self.annotation_filename}.csv"
+        csv_logger_filepath = os.path.join(MODEL_DIR, csv_logger_filename)
+        csv_loggger = CSVLogger(csv_logger_filepath)
+        logger.info(f"CSVLogger file will be generated at {csv_logger_filepath}")
         self.model.summary(print_fn=logger.info)
         self.start_time = time.time() 
         start_time = datetime.fromtimestamp(self.start_time).strftime('%Y-%m-%d %H:%M:%S')
@@ -221,7 +229,8 @@ class CoralReefClassifier:
             self.data_generator(self.image_paths_train, self.labels_train, self.x_pos_train, self.y_pos_train, batch_size), 
             steps_per_epoch=steps_per_epoch, epochs=epochs,
             validation_data=self.data_generator(self.image_paths_val, self.labels_val, self.x_pos_val, self.y_pos_val, batch_size),
-            validation_steps=validation_steps
+            validation_steps=validation_steps,
+            callbacks=[csv_loggger]
         )
         self.end_time = time.time() 
         end_time = datetime.fromtimestamp(self.end_time).strftime('%Y-%m-%d %H:%M:%S')
