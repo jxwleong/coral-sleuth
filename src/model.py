@@ -217,7 +217,7 @@ class CoralReefClassifier:
         steps_per_epoch = len(self.image_paths_train) // batch_size
         validation_steps = len(self.image_paths_val) // batch_size
         
-        csv_logger_filename = f"coral_reef_classifier_epoch_{epochs}_batchsize_{batch_size}_metrics_{self.annotation_filename}.csv"
+        csv_logger_filename = f"coral_reef_classifier_{self.model_type}_epoch_{epochs}_batchsize_{batch_size}_metrics_{self.annotation_filename}.csv"
         csv_logger_filepath = os.path.join(MODEL_DIR, csv_logger_filename)
         csv_loggger = CSVLogger(csv_logger_filepath)
         logger.info(f"CSVLogger file will be generated at {csv_logger_filepath}")
