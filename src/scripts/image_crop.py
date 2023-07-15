@@ -19,7 +19,7 @@ width, height = img.size
 x_center = 828
 y_center = 495
 
-scale = 0.25  # Adjust this scale to change the size of the cropped image
+scale = 0.15  # Adjust this scale to change the size of the cropped image
 
 half_width = int(width * scale) // 2
 half_height = int(height * scale) // 2
@@ -37,7 +37,7 @@ fig, axs = plt.subplots(1, 2, figsize=(10, 5))  # Change the figure size here
 
 # Display the original image in the first subplot
 axs[0].imshow(img)
-axs[0].set_title(f'Original Image - Resolution: {width}x{height}')
+axs[0].set_title(f'Original Image - Resolution: {width}x{height}, Coordinates: {x_center, y_center}')
 
 # Draw the center point on the original image
 axs[0].scatter(x_center, y_center, c='red')
@@ -45,7 +45,7 @@ axs[0].scatter(x_center, y_center, c='red')
 # Display the cropped image in the second subplot
 axs[1].imshow(cropped_img)
 cropped_width, cropped_height = cropped_img.size
-axs[1].set_title(f'Cropped Image - Resolution: {cropped_width}x{cropped_height}')
+axs[1].set_title(f'Cropped Image - Resolution: {cropped_width}x{cropped_height}, Scale: {scale}')
 
 # Draw the center point on the cropped image
 axs[1].scatter(x_center - x_min, y_center - y_min, c='red')
