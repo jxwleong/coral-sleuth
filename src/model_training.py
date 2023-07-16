@@ -74,7 +74,7 @@ def train_and_evaluate_models(
         # Save metrics to a JSON file
         metrics_file = os.path.join(
             MODEL_DIR,
-            f'coral_reef_classifier_epoch_{epoch}_batchsize_{batch_size}_metrics_{annotation_name}.json'
+            f'coral_reef_classifier_{model_type}_epoch_{epoch}_batchsize_{batch_size}_metrics_{annotation_name}.json'
         )
         
         logger.info("\n" + json.dumps(metrics, indent=4))
@@ -162,24 +162,31 @@ def continue_training_models(
 
 
 if __name__ == "__main__":
-    annotation_filename = "combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample.csv"
+    annotation_filename = "combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample_reduced_1k.csv"
     annotation_name = annotation_filename.split(".")[0]
     annotation_filepath = os.path.join(ANNOTATION_DIR, annotation_filename)
     
-    h5_model_file = r"C:\Users\ad_xleong\Desktop\coral-sleuth\models\coral_reef_classifier_efficientnetv2_full_epoch_10_1_batchsize_16_combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample.h5"
+    h5_model_filename = 'coral_reef_classifier_efficientnetv2_full_epoch_50_1_batchsize_32_combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample_0p1.h5'
+    h5_model_file = os.path.join(
+            MODEL_DIR, 
+            h5_model_filename
+    )
+   
 
     batch_size = 32
-    epoch = 1
-    additional_epochs = 10
+    epoch = 50
+    additional_epochs = 50
     
-    
+   
     train_and_evaluate_models(
         annotation_filepath,
         annotation_name,
         annotation_filename,
         batch_size,
         epoch,
-        model_types=['efficientnetv2', 'mobilenetv3', 'convnexttiny']
+        #model_types=['efficientnetv2', 'mobilenetv3', 'convnexttiny']
+        model_types=['efficientnetv2'],
+        image_scale=0.25
     )
     
     """
@@ -192,4 +199,4 @@ if __name__ == "__main__":
         batch_size,
         additional_epochs,
     )
-    """
+ """
