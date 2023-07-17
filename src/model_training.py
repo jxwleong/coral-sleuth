@@ -29,7 +29,8 @@ def train_and_evaluate_models(
     annotation_filename,
     batch_size,
     epoch,
-    model_types
+    model_types,
+    image_scale=0.2
 ):
 
     logger.info(f"Device List: {device_lib.list_local_devices()}")
@@ -38,7 +39,7 @@ def train_and_evaluate_models(
     
     for model_type in model_types:
 
-        classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_filepath, model_type)
+        classifier = CoralReefClassifier(ROOT_DIR, DATA_DIR, IMAGE_DIR, annotation_filepath, model_type, image_scale)
         classifier.create_model()
         logger.info(f"Start model ({model_type}) training...")
         training_metrics = classifier.train(batch_size=batch_size, epochs=epoch)
@@ -74,7 +75,7 @@ def train_and_evaluate_models(
         # Save metrics to a JSON file
         metrics_file = os.path.join(
             MODEL_DIR,
-            f'coral_reef_classifier_epoch_{epoch}_batchsize_{batch_size}_metrics_{annotation_name}.json'
+            f'coral_reef_classifier_{model_type}_epoch_{epoch}_batchsize_{batch_size}_metrics_{annotation_name}_scale_{image_scale}.json'
         )
         
         logger.info("\n" + json.dumps(metrics, indent=4))
@@ -85,7 +86,7 @@ def train_and_evaluate_models(
         
     excel_file = os.path.join(
         MODEL_DIR,
-        f'coral_reef_classifier_epoch_{epoch}_batchsize_{batch_size}_metrics_{annotation_name}.xlsx'
+        f'coral_reef_classifier_epoch_{epoch}_batchsize_{batch_size}_metrics_{annotation_name}_scale_{image_scale}.xlsx'
     )
     excel.dict_to_excel(metrics, excel_file, "model_name")
     excel.append_label_distribution_to_excel(annotation_filepath, excel_file)
@@ -99,6 +100,7 @@ def continue_training_models(
     annotation_filename,
     batch_size,
     additional_epochs,
+    image_scale=0.2
 ):
 
     logger.info(f"Device List: {device_lib.list_local_devices()}")
@@ -116,7 +118,7 @@ def continue_training_models(
     logger.info(f"Training model DONE!")
     model_file = os.path.join(
         MODEL_DIR, 
-        f'coral_reef_classifier_continued_epoch_{additional_epochs}_batchsize_{batch_size}_{annotation_name}.h5'
+        f'coral_reef_classifier_continued_epoch_{additional_epochs}_batchsize_{batch_size}_{annotation_name}_scale_{image_scale}.h5'
     )
     classifier.save_model(model_file)
 
@@ -142,7 +144,7 @@ def continue_training_models(
 
     metrics_file = os.path.join(
         MODEL_DIR,
-        f'coral_reef_classifier_continued_epoch_{additional_epochs}_batchsize_{batch_size}_metrics_{annotation_name}.json'
+        f'coral_reef_classifier_continued_epoch_{additional_epochs}_batchsize_{batch_size}_metrics_{annotation_name}_scale_{image_scale}.json'
     )
 
     logger.info("\n" + json.dumps(metrics, indent=4))
@@ -153,7 +155,7 @@ def continue_training_models(
 
     excel_file = os.path.join(
         MODEL_DIR,
-        f'coral_reef_classifier_continued_epoch_{additional_epochs}_batchsize_{batch_size}_metrics_{annotation_name}.xlsx'
+        f'coral_reef_classifier_continued_epoch_{additional_epochs}_batchsize_{batch_size}_metrics_{annotation_name}_scale_{image_scale}.xlsx'
     )
     excel.dict_to_excel(metrics, excel_file, "model_name")
     excel.append_label_distribution_to_excel(annotation_filepath, excel_file)
@@ -162,24 +164,31 @@ def continue_training_models(
 
 
 if __name__ == "__main__":
-    annotation_filename = "combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample.csv"
+    annotation_filename = "combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample_reduced_1k.csv"
     annotation_name = annotation_filename.split(".")[0]
     annotation_filepath = os.path.join(ANNOTATION_DIR, annotation_filename)
     
-    h5_model_file = r"C:\Users\ad_xleong\Desktop\coral-sleuth\models\coral_reef_classifier_efficientnetv2_full_epoch_10_1_batchsize_16_combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample.h5"
+    h5_model_filename = 'coral_reef_classifier_efficientnetv2_full_epoch_50_1_batchsize_32_combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample_0p1.h5'
+    h5_model_file = os.path.join(
+            MODEL_DIR, 
+            h5_model_filename
+    )
+   
 
     batch_size = 32
-    epoch = 1
-    additional_epochs = 10
+    epoch = 50
+    additional_epochs = 50
     
-    
+   
     train_and_evaluate_models(
         annotation_filepath,
         annotation_name,
         annotation_filename,
         batch_size,
         epoch,
-        model_types=['efficientnetv2', 'mobilenetv3', 'convnexttiny']
+        #model_types=['efficientnetv2', 'mobilenetv3', 'convnexttiny']
+        model_types=['efficientnetv2'],
+        image_scale=0.25
     )
     
     """
@@ -192,4 +201,4 @@ if __name__ == "__main__":
         batch_size,
         additional_epochs,
     )
-    """
+ """

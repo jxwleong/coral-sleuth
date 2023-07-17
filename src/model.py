@@ -9,6 +9,7 @@ import re
 
 
 from keras.models import Model, load_model
+from keras.callbacks import CSVLogger
 from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
 from keras.layers import Dense, GlobalAveragePooling2D, Conv2D, Flatten, concatenate, Input, MaxPooling2D
 from keras.utils import to_categorical
@@ -26,13 +27,15 @@ from config.path import ANNOTATION_DIR, DATA_DIR, IMAGE_DIR, WEIGHT_DIR, MODEL_D
 logger = logging.getLogger(__name__)
 
 class CoralReefClassifier:
-    def __init__(self, root_dir, data_dir, image_dir, annotation_file, model_type):
+    def __init__(self, root_dir, data_dir, image_dir, annotation_file, model_type, image_scale=0.2):
         self.root_dir = root_dir
         self.data_dir = data_dir
         self.image_dir = image_dir
         self.annotation_file = annotation_file
+        self.annotation_filename = os.path.basename(self.annotation_file)
         self.model_type = model_type
         self.image_paths = []
+        self.image_scale = image_scale  # Scale used to crop image
         self.labels = []
         self.x_pos = []
         self.y_pos = []
@@ -111,7 +114,7 @@ class CoralReefClassifier:
         logger.info(f"Loaded {self.unique_image_count} images with {len(self.image_paths)} annotations and {self.number_labels_to_train} labels\n")
 
 
-    def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size, block_size=224):
+    def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size):
         while True:
             for i in range(0, len(image_paths), batch_size):
                 batch_image_paths = image_paths[i:i+batch_size]
@@ -128,16 +131,22 @@ class CoralReefClassifier:
                             continue
                         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                         
+                        # Extract center of the bounding box
+                        x_center = int(batch_x_pos[idx])
+                        y_center = int(batch_y_pos[idx])
+                        
                         # Create segment from image
                         height, width, _ = image.shape
-                        x = int(batch_x_pos[idx])
-                        y = int(batch_y_pos[idx])
-                        left = max(0, x - block_size//2)
-                        right = min(width, x + block_size//2)
-                        top = max(0, y - block_size//2)
-                        bottom = min(height, y + block_size//2)
-                        image = image[top:bottom, left:right]
+                        half_width = int(width * self.image_scale) // 2
+                        half_height = int(height * self.image_scale) // 2
+
+                        x_min = max(0, x_center - half_width)
+                        y_min = max(0, y_center - half_height)
+                        x_max = min(width, x_center + half_width)
+                        y_max = min(height, y_center + half_height)
                         
+                        image = image[y_min:y_max, x_min:x_max]
+
                         image = cv2.resize(image, (224, 224))  # Make sure all images are resized to (224, 224)
                         image = np.array(image)
                         batch_images.append(image)
@@ -150,55 +159,42 @@ class CoralReefClassifier:
                     continue
                 
                 batch_images = np.array(batch_images, dtype=np.float32) / 255.0
-                yield [batch_images, np.column_stack((batch_x_pos, batch_y_pos))], batch_labels
+                yield batch_images, batch_labels
 
 
     def create_model(self):
         image_input = Input(shape=(224, 224, 3))
-        pos_input = Input(shape=(2,))
-
-        y = Dense(16, activation='relu')(pos_input)
 
         if self.model_type == "efficientnet":
             base_model = EfficientNetB0(weights=self.efficientnet_b0_weight, include_top=False)
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
-            y = Dense(1280, activation='relu')(pos_input)
         elif self.model_type == "efficientnetv2":
             base_model = EfficientNetV2B0(weights=self.efficientnet_v2_b0_weight, include_top=False)
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
-            y = Dense(1280, activation='relu')(pos_input)
         elif self.model_type == "vgg16":
             base_model = VGG16(weights=self.vgg16_weight, include_top=False)
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
-            y = Dense(512, activation='relu')(pos_input)
         elif self.model_type == "mobilenetv3":
             base_model = MobileNetV3Large(weights=self.mobilenet_v3_weight, include_top=True)
             x = base_model(image_input)
-            y = Dense(1024, activation='relu')(pos_input)  # MobileNetV3Large has 1024 output features
         elif self.model_type == "convnexttiny":
             base_model = ConvNeXtTiny(weights=self.convnext_tiny_weight, include_top=False)  # assuming this is the correct class name
             x = base_model(image_input)
             x = GlobalAveragePooling2D()(x)
-            y = Dense(512, activation='relu')(pos_input)  # adjust the size as per ConvNeXtTiny's output features
-
         elif self.model_type == "custom":
             x = Conv2D(16, (3, 3), activation='relu')(image_input)
             x = MaxPooling2D()(x)
             x = Conv2D(32, (3, 3), activation='relu')(x)
             x = GlobalAveragePooling2D()(x)
-            y = Dense(32, activation='relu')(pos_input)
         else:
             raise ValueError('Invalid model type')
 
-        combined = concatenate([x, y])
-
         # Use the stored number of unique labels here
-        output = Dense(self.n_unique_labels, activation='softmax')(combined)
-        self.model = Model(inputs=[image_input, pos_input], outputs=output)
-
+        output = Dense(self.n_unique_labels, activation='softmax')(x)
+        self.model = Model(inputs=[image_input], outputs=output)
 
         self.model.compile(
             optimizer='adam', 
@@ -211,6 +207,7 @@ class CoralReefClassifier:
         )
 
 
+
     def train(self, batch_size, epochs):
         if self.model is None:
             logger.info("No model defined.")
@@ -219,6 +216,11 @@ class CoralReefClassifier:
         logger.info(f"Epochs: {epochs}, Batch Size: {batch_size}\n")
         steps_per_epoch = len(self.image_paths_train) // batch_size
         validation_steps = len(self.image_paths_val) // batch_size
+        
+        csv_logger_filename = f"coral_reef_classifier_{self.model_type}_epoch_{epochs}_batchsize_{batch_size}_metrics_{self.annotation_filename}.csv"
+        csv_logger_filepath = os.path.join(MODEL_DIR, csv_logger_filename)
+        csv_loggger = CSVLogger(csv_logger_filepath)
+        logger.info(f"CSVLogger file will be generated at {csv_logger_filepath}")
         self.model.summary(print_fn=logger.info)
         self.start_time = time.time() 
         start_time = datetime.fromtimestamp(self.start_time).strftime('%Y-%m-%d %H:%M:%S')
@@ -227,7 +229,8 @@ class CoralReefClassifier:
             self.data_generator(self.image_paths_train, self.labels_train, self.x_pos_train, self.y_pos_train, batch_size), 
             steps_per_epoch=steps_per_epoch, epochs=epochs,
             validation_data=self.data_generator(self.image_paths_val, self.labels_val, self.x_pos_val, self.y_pos_val, batch_size),
-            validation_steps=validation_steps
+            validation_steps=validation_steps,
+            callbacks=[csv_loggger]
         )
         self.end_time = time.time() 
         end_time = datetime.fromtimestamp(self.end_time).strftime('%Y-%m-%d %H:%M:%S')
