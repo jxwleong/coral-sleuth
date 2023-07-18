@@ -10,10 +10,6 @@ sys.path.insert(0, ROOT_DIR)
 
 from config.path import MODEL_DIR
 
-filename = "coral_reef_classifier_efficientnetv2_epoch_200_batchsize_32_metrics_combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample_reduced_1k.csv.csv"
-filepath = os.path.join(MODEL_DIR, filename)
-
-
 
 filenames = [
     "coral_reef_classifier_efficientnetv2_epoch_200_batchsize_32_metrics_combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample_reduced_1k.csv.csv"
@@ -23,7 +19,7 @@ filepath = MODEL_DIR
 
 # A dictionary mapping filenames to labels
 filename_to_label = {
-    filenames[0]: "Your Label",
+    filenames[0]: "Label 1",
     # Add more as needed
 }
 
