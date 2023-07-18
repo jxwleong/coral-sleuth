@@ -11,18 +11,36 @@ sys.path.insert(0, ROOT_DIR)
 from config.path import MODEL_DIR
 
 
-filename = "coral_reef_classifier_efficientnetv2_epoch_50_batchsize_32_metrics_combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample_reduced_1k.csv.csv"
-filepath = os.path.join(MODEL_DIR, filename)
-# Load the data from the CSV file
-data = pd.read_csv(filepath)  
+filenames = [
+    "coral_reef_classifier_efficientnetv2_epoch_200_batchsize_32_metrics_combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample_reduced_1k.csv.csv"
+] 
+filepath = MODEL_DIR
 
-# Extract the data for epochs and accuracy
-epochs = data['epoch']
-accuracy = data['accuracy']
+
+# A dictionary mapping filenames to labels
+filename_to_label = {
+    filenames[0]: "Label 1",
+    # Add more as needed
+}
+
 
 # Create the plot
 plt.figure(figsize=(10,6))
-plt.plot(epochs, accuracy, label='Training Accuracy', linewidth=2)
+
+for filename in filenames:
+    file = os.path.join(filepath, filename)
+    data = pd.read_csv(file)  
+
+    # Extract the data for epochs and accuracy
+    epochs = data['epoch']
+    accuracy = data['accuracy']
+
+    # Use the filename to look up the label
+    label = filename_to_label[filename]
+
+    # Plot the data
+    plt.plot(epochs, accuracy, label=label, linewidth=2)
+
 plt.title('Model Accuracy Over Epochs')
 plt.xlabel('Epochs')
 plt.ylabel('Accuracy')

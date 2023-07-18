@@ -47,7 +47,7 @@ def train_and_evaluate_models(
         logger.info(f"Training model ({model_type}) DONE!")
         model_file = os.path.join(
             MODEL_DIR, 
-            f'coral_reef_classifier_{model_type}_full_epoch_{epoch}_1_batchsize_{batch_size}_{annotation_name}.h5'
+            f'coral_reef_classifier_{model_type}_full_epoch_{epoch}_1_batchsize_{batch_size}_{annotation_name}_scale_{image_scale}.h5'
         )
         classifier.save_model(model_file)
 
@@ -176,7 +176,7 @@ if __name__ == "__main__":
    
 
     batch_size = 32
-    epoch = 50
+    epoch = 200
     additional_epochs = 50
     
    
@@ -188,7 +188,7 @@ if __name__ == "__main__":
         epoch,
         #model_types=['efficientnetv2', 'mobilenetv3', 'convnexttiny']
         model_types=['efficientnetv2'],
-        image_scale=0.25
+        image_scale=0.4
     )
     
     """
