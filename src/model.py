@@ -10,7 +10,7 @@ import re
 
 from keras.models import Model, load_model
 from keras.callbacks import CSVLogger
-from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives
+from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives, CategoricalAccuracy, TopKCategoricalAccuracy
 from keras.layers import Dense, GlobalAveragePooling2D, Conv2D, Flatten, concatenate, Input, MaxPooling2D
 from keras.utils import to_categorical
 from keras.applications import EfficientNetB0, VGG16, MobileNetV3Large, EfficientNetV2B0, ConvNeXtTiny
@@ -23,6 +23,7 @@ import sys
 ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", ".."))
 sys.path.insert(0, ROOT_DIR)
 from config.path import ANNOTATION_DIR, DATA_DIR, IMAGE_DIR, WEIGHT_DIR, MODEL_DIR
+from src.utils.custom_metrics import recall_m, precision_m, f1  
 
 logger = logging.getLogger(__name__)
 
@@ -200,9 +201,9 @@ class CoralReefClassifier:
             optimizer='adam', 
             loss='categorical_crossentropy', 
             metrics=[
-                Accuracy(), Precision(), Recall(), AUC(), 
+                Accuracy(), CategoricalAccuracy(), TopKCategoricalAccuracy(), Precision(), Recall(), AUC(), 
                 TruePositives(), TrueNegatives(), FalsePositives(), 
-                FalseNegatives()
+                FalseNegatives(), recall_m, precision_m, f1
             ]
         )
 
@@ -344,8 +345,8 @@ class CoralReefClassifier:
             optimizer='adam', 
             loss='categorical_crossentropy', 
             metrics=[
-                Accuracy(), Precision(), Recall(), AUC(), 
+                Accuracy(), CategoricalAccuracy(), TopKCategoricalAccuracy(), Precision(), Recall(), AUC(), 
                 TruePositives(), TrueNegatives(), FalsePositives(), 
-                FalseNegatives()
+                FalseNegatives(), recall_m, precision_m, f1
             ]
         )
