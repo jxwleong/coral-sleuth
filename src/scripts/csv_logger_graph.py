@@ -13,16 +13,20 @@ from config.path import MODEL_DIR
 filename = "coral_reef_classifier_efficientnetv2_epoch_200_batchsize_32_metrics_combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample_reduced_1k.csv.csv"
 filepath = os.path.join(MODEL_DIR, filename)
 
-# A dictionary mapping filenames to labels
-filename_to_label = {
-    "coral_reef_classifier_efficientnetv2_epoch_200_batchsize_32_metrics_combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample_reduced_1k.csv.csv": "Your Label",
-    # Add more as needed
-}
+
 
 filenames = [
     "coral_reef_classifier_efficientnetv2_epoch_200_batchsize_32_metrics_combined_annotations_about_40k_png_only_remapped_majority_class_with_3k_to_4k_sample_reduced_1k.csv.csv"
-] # replace with your single filename
+] 
 filepath = MODEL_DIR
+
+
+# A dictionary mapping filenames to labels
+filename_to_label = {
+    filenames[0]: "Your Label",
+    # Add more as needed
+}
+
 
 # Create the plot
 plt.figure(figsize=(10,6))
