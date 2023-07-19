@@ -23,7 +23,7 @@ import sys
 ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", ".."))
 sys.path.insert(0, ROOT_DIR)
 from config.path import ANNOTATION_DIR, DATA_DIR, IMAGE_DIR, WEIGHT_DIR, MODEL_DIR
-from src.utils.custom_metrics import recall_m, precision_m, f1  
+from src.utils.custom_metrics import recall_m, precision_m, f1_m
 
 logger = logging.getLogger(__name__)
 
@@ -201,9 +201,8 @@ class CoralReefClassifier:
             optimizer='adam', 
             loss='categorical_crossentropy', 
             metrics=[
-                Accuracy(), CategoricalAccuracy(), TopKCategoricalAccuracy(), Precision(), Recall(), AUC(), 
-                TruePositives(), TrueNegatives(), FalsePositives(), 
-                FalseNegatives(), recall_m, precision_m, f1
+                CategoricalAccuracy(), TopKCategoricalAccuracy(), AUC(), 
+                recall_m, precision_m, f1_m
             ]
         )
 
@@ -345,8 +344,7 @@ class CoralReefClassifier:
             optimizer='adam', 
             loss='categorical_crossentropy', 
             metrics=[
-                Accuracy(), CategoricalAccuracy(), TopKCategoricalAccuracy(), Precision(), Recall(), AUC(), 
-                TruePositives(), TrueNegatives(), FalsePositives(), 
-                FalseNegatives(), recall_m, precision_m, f1
+                CategoricalAccuracy(), TopKCategoricalAccuracy(), AUC(), 
+                recall_m, precision_m, f1_m
             ]
         )
