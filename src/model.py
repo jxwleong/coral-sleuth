@@ -9,7 +9,7 @@ import re
 
 
 from keras.models import Model, load_model
-from keras.callbacks import CSVLogger
+from keras.callbacks import CSVLogger, EarlyStopping
 from keras.metrics import Accuracy, Precision, Recall, AUC, TruePositives, TrueNegatives, FalsePositives, FalseNegatives, CategoricalAccuracy, TopKCategoricalAccuracy
 from keras.layers import Dense, GlobalAveragePooling2D, Conv2D, Flatten, concatenate, Input, MaxPooling2D
 from keras.utils import to_categorical
@@ -216,6 +216,14 @@ class CoralReefClassifier:
         logger.info(f"Epochs: {epochs}, Batch Size: {batch_size}\n")
         steps_per_epoch = len(self.image_paths_train) // batch_size
         validation_steps = len(self.image_paths_val) // batch_size
+        
+        # define early stopping
+        early_stopping = EarlyStopping(
+            monitor='val_categorical_accuracy',
+            patience=10,
+            restore_best_weights=True,
+        )
+
         
         csv_logger_filename = f"coral_reef_classifier_{self.model_type}_epoch_{epochs}_batchsize_{batch_size}_metrics_{self.annotation_filename}".replace(".csv", "")
         csv_logger_filename = csv_logger_filename + f"_scale_{self.image_scale}.csv"
