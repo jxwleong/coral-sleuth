@@ -81,8 +81,8 @@ class CoralReefClassifier:
         # Convert labels to integers
         unique_labels = np.unique(self.labels)
         self.n_unique_labels = len(unique_labels)  # Store the number of unique labels here
-        label_mapping = {label: i for i, label in enumerate(unique_labels)}
-        self.labels = np.array([label_mapping[label] for label in self.labels])
+        self.label_mapping = {label: i for i, label in enumerate(unique_labels)}
+        self.labels = np.array([self.label_mapping[label] for label in self.labels])
 
         # Filter out classes with only one sample
         # line 73, in load_data
@@ -93,6 +93,8 @@ class CoralReefClassifier:
         single_sample_labels = np.where(label_counts == 1)[0]
         multi_sample_labels_count = len(unique_labels) - len(single_sample_labels)  # Number of labels with more than one sample
         
+        logger.info("Label Mapping:")
+        logger.info(self.label_mapping)
         if list(single_sample_labels) != []:
             logger.warning(f"Skipping label {single_sample_labels} since it only contain one sample")
             
