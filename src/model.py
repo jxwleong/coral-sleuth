@@ -1,3 +1,4 @@
+import albumentations as A
 import os
 import numpy as np
 import csv
@@ -28,7 +29,7 @@ from src.utils.custom_metrics import recall_m, precision_m, f1_m
 logger = logging.getLogger(__name__)
 
 class CoralReefClassifier:
-    def __init__(self, root_dir, data_dir, image_dir, annotation_file, model_type, image_scale=0.2):
+    def __init__(self, root_dir, data_dir, image_dir, annotation_file, model_type, image_scale=0.2, augmentations=None):
         self.root_dir = root_dir
         self.data_dir = data_dir
         self.image_dir = image_dir
@@ -47,7 +48,17 @@ class CoralReefClassifier:
         self.vgg16_weight = os.path.join(WEIGHT_DIR, "vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5")
         self.mobilenet_v3_weight = os.path.join(WEIGHT_DIR, "weights_mobilenet_v3_large_224_1.0_float.h5")
         self.convnext_tiny_weight = os.path.join(WEIGHT_DIR, "convnext_tiny_notop.h5")
+        if augmentations is None:  # if no augmentations were given
+            # use default augmentations
+            augmentations = [
+                #A.RandomCrop(width=256, height=256),
+                A.HorizontalFlip(p=0.3),
+                A.VerticalFlip(p=0.3),
+                A.RandomBrightnessContrast(p=0.3),
+                A.Rotate(limit=30, p=0.3)
+            ]
         
+        self.image_augmenter = A.Compose(augmentations)
         self.load_data()
 
     def load_data(self):
@@ -116,6 +127,8 @@ class CoralReefClassifier:
 
 
     def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size):
+        num_batches_per_epoch = len(image_paths) // batch_size
+        total_batches_generated = 0
         while True:
             for i in range(0, len(image_paths), batch_size):
                 batch_image_paths = image_paths[i:i+batch_size]
@@ -149,12 +162,19 @@ class CoralReefClassifier:
                         image = image[y_min:y_max, x_min:x_max]
 
                         image = cv2.resize(image, (224, 224))  # Make sure all images are resized to (224, 224)
+                        
+                        # Augment image, but only after first epoch
+                        if total_batches_generated > num_batches_per_epoch:
+                            augmented = self.image_augmenter(image=image)
+                            image = augmented['image']
+
                         image = np.array(image)
                         batch_images.append(image)
                     except Exception as e:
                         logger.error(f'Error processing image {image_path}: {e}')
                         continue
-
+                total_batches_generated += 1
+                
                 if len(batch_images) == 0:  # If the batch_images list is empty, logger.info the problematic image paths and skip to the next iteration
                     logger.warning(f'Skipping a batch at index {i}. All image paths in this batch were problematic: {batch_image_paths}')
                     continue
