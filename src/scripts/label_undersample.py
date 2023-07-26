@@ -13,6 +13,9 @@ from config.path import ANNOTATION_DIR
 filename = "combined_annotations_1000_remapped.csv"
 filepath = os.path.join(ANNOTATION_DIR, filename)
 
+output_filename = filename.replace(".csv", "") + "_undersample.csv"
+outfile = os.path.join(ANNOTATION_DIR, output_filename)
+
 labels_to_undersample = [
     "porites",
     "crustose_coralline_algae"
@@ -45,6 +48,8 @@ for label in class_counts.index:
     undersampled_data = pd.concat([undersampled_data, label_data])
 
 undersampled_data = undersampled_data.sample(frac=1).reset_index(drop=True)  # shuffle the data
+print(outfile)
+undersampled_data.to_csv(outfile, index=False)
 
 
 # Get the new class distribution
