@@ -18,8 +18,11 @@ outfile = os.path.join(ANNOTATION_DIR, output_filename)
 
 labels_to_undersample = [
     "porites",
-    "crustose_coralline_algae"
+    "crustose_coralline_algae",
+    "turf"
 ]
+
+undersample_count = 10  # desired count for undersampling
 
 data = pd.read_csv(filepath)
 
@@ -32,23 +35,20 @@ labels = class_counts.index.tolist()
 # Get the initial class distribution
 initial_distribution = class_counts.tolist()
 
-# Find the class with the least number of instances
-min_class_count = class_counts.min()
-
 # Perform undersampling
 undersampled_data = pd.DataFrame()
 
 for label in class_counts.index:
     label_data = data[data['Label'] == label]
     
-    # If this is one of the classes to be undersampled, randomly select instances equal to the minimum class count
+    # If this is one of the classes to be undersampled, randomly select instances equal to the specified count
     if label in labels_to_undersample:
-        label_data = label_data.sample(min_class_count)
+        if len(label_data) > undersample_count:  # check if the class count is larger than the undersample count
+            label_data = label_data.sample(undersample_count)
         
     undersampled_data = pd.concat([undersampled_data, label_data])
 
 undersampled_data = undersampled_data.sample(frac=1).reset_index(drop=True)  # shuffle the data
-print(outfile)
 undersampled_data.to_csv(outfile, index=False)
 
 
