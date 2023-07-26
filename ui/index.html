@@ -4,6 +4,12 @@
         <style>
             body {
                 font-family: Arial, sans-serif;
+                background: url("static/background.jpg") no-repeat center center fixed; 
+                -webkit-background-size: cover;
+                -moz-background-size: cover;
+                -o-background-size: cover;
+                background-size: cover;
+                color: white;   /* Add this line */
             }
             #preview {
                 margin-top: 20px;
@@ -16,10 +22,26 @@
                 margin: auto;
                 display: block;
             }
+            .quote {
+                text-align: center; 
+                font-size: 1.2em; 
+                color: white;
+                margin-top: 0.1em; /* adjust this value to change the space above the quote */
+            }
+            h1 {
+                text-align: center;  
+                font-size: 50px;  
+                margin-bottom: 0; 
+            }
+            h2 {
+                text-align: center;  
+                font-size: 30px;  
+            }
         </style>
     </head>
     <body>
         <h1>Coral Classifier</h1>
+        <p class="quote">"Corals are the rainforests of the sea." - Sylvia Earle</p>
         <form action="/" method="post" enctype="multipart/form-data">
             <h2>Select an Image</h2>
             <input type="file" id="file" name="file" accept="image/*" class="file-input">
