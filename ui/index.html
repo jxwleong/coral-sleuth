@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+            #preview {
+                margin-top: 20px;
+                background-color: #ccc;
+                display: none;
+            }
+            #preview img {
+                width: 100%;
+                height: auto;
+                margin: auto;
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Coral Classifier</h1>
+        <form action="/" method="post" enctype="multipart/form-data">
+            <h2>Select an Image</h2>
+            <input type="file" id="file" name="file" accept="image/*" class="file-input">
+            <br>
+            <input type="submit" value="Predict">
+        </form>
+        <div id="preview"></div>
+        <h2>Results</h2>
+        <p id="results">Prediction results will be shown here.</p>
+        <script>
+            document.querySelector('input[type="file"]').addEventListener('change', function(event) {
+                var preview = document.getElementById('preview');
+                var image = document.createElement('img');
+                image.src = URL.createObjectURL(event.target.files[0]);
+        
+                // Set the preview div dimensions when the image loads
+                image.onload = function() {
+                    preview.style.width = this.width + 'px';
+                    preview.style.height = this.height + 'px';
+                };
+        
+                // Remove any existing images from the preview div
+                while (preview.firstChild) {
+                    preview.firstChild.remove();
+                }
+        
+                preview.appendChild(image);
+                preview.style.display = 'block';
+            });
+        </script>
+    </body>
+</html>
