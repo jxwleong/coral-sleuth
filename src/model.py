@@ -29,7 +29,7 @@ from src.utils.custom_metrics import recall_m, precision_m, f1_m
 logger = logging.getLogger(__name__)
 
 class CoralReefClassifier:
-    def __init__(self, root_dir, data_dir, image_dir, annotation_file, model_type, image_scale=0.2, augmentations=None):
+    def __init__(self, root_dir, data_dir, image_dir, annotation_file, model_type, image_scale=0.2, augmentations=None, stopping_patience=10):
         self.root_dir = root_dir
         self.data_dir = data_dir
         self.image_dir = image_dir
@@ -42,6 +42,7 @@ class CoralReefClassifier:
         self.x_pos = []
         self.y_pos = []
         self.model = None
+        self.stopping_patience=stopping_patience,
 
         self.efficientnet_b0_weight = os.path.join(WEIGHT_DIR, "efficientnetb0_notop.h5")
         self.efficientnet_v2_b0_weight = os.path.join(WEIGHT_DIR, "efficientnetv2-b0_notop.h5")
@@ -242,7 +243,7 @@ class CoralReefClassifier:
         # define early stopping
         early_stopping = EarlyStopping(
             monitor='val_categorical_accuracy',
-            patience=10,
+            patience=self.stopping_patience,
             restore_best_weights=True,
         )
 
