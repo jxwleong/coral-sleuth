@@ -25,3 +25,6 @@ albumentations==1.3.1
 
 # For dataset checks
 deepchecks==0.17.3
+
+# For Web UI
+flask==2.3.2

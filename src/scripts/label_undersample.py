@@ -9,14 +9,14 @@ ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", "..", 
 sys.path.insert(0, ROOT_DIR)
 from config.path import ANNOTATION_DIR
 
-filename = "combined_annotations_1000_remapped.csv"
+filename = "combined_annotations_remapped_merged.csv"
 filepath = os.path.join(ANNOTATION_DIR, filename)
 
 output_filename = filename.replace(".csv", "") + "_undersample.csv"
 outfile = os.path.join(ANNOTATION_DIR, output_filename)
 
-threshold = 300  # threshold for class count
-undersample_count = 100  # desired count for undersampling
+threshold = 226000  # threshold for class count
+undersample_count = 44000  # desired count for undersampling
 
 data = pd.read_csv(filepath)
 
@@ -44,6 +44,9 @@ for label, count in class_counts.iteritems():
 undersampled_data = undersampled_data.sample(frac=1).reset_index(drop=True)  # shuffle the data
 undersampled_data.to_csv(outfile, index=False)
 
+# Display the new distribution
+print(undersampled_data['Label'].value_counts())
+""" 
 # Get the new class distribution
 new_distribution = undersampled_data['Label'].value_counts().sort_index().tolist()
 
@@ -65,3 +68,4 @@ ax.legend()
 fig.tight_layout()
 
 plt.show()
+"""
