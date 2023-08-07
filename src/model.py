@@ -262,7 +262,7 @@ class CoralReefClassifier:
             steps_per_epoch=steps_per_epoch, epochs=epochs,
             validation_data=self.data_generator(self.image_paths_val, self.labels_val, self.x_pos_val, self.y_pos_val, batch_size),
             validation_steps=validation_steps,
-            callbacks=[csv_loggger]
+            callbacks=[csv_loggger, early_stopping]
         )
         self.end_time = time.time() 
         end_time = datetime.fromtimestamp(self.end_time).strftime('%Y-%m-%d %H:%M:%S')
