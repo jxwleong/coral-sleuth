@@ -42,7 +42,7 @@ class CoralReefClassifier:
         self.x_pos = []
         self.y_pos = []
         self.model = None
-        self.stopping_patience=stopping_patience,
+        self.stopping_patience=stopping_patience
 
         self.efficientnet_b0_weight = os.path.join(WEIGHT_DIR, "efficientnetb0_notop.h5")
         self.efficientnet_v2_b0_weight = os.path.join(WEIGHT_DIR, "efficientnetv2-b0_notop.h5")
