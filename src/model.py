@@ -240,6 +240,7 @@ class CoralReefClassifier:
         steps_per_epoch = len(self.image_paths_train) // batch_size
         validation_steps = len(self.image_paths_val) // batch_size
         
+        logger.info(f"Early Stopping: Patience:{self.stopping_patience}")
         # define early stopping
         early_stopping = EarlyStopping(
             monitor='val_categorical_accuracy',
