@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Coral Classifier</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -10,12 +11,12 @@
             -o-background-size: cover;
             background-size: cover;
             color: white;
-            margin: 0; /* Add this line to remove default body margin */
+            margin: 0; 
         }
         #container {
-            max-width: 600px; /* Set a maximum width for the content */
-            margin: 0 auto; /* Center the content horizontally */
-            padding: 20px; /* Add padding to create spacing */
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
         }
         #preview {
             margin-top: 20px;
@@ -34,14 +35,8 @@
             color: white;
             margin-top: 0.1em;
         }
-        h1 {
-            text-align: center;  
-            font-size: 50px;  
-            margin-bottom: 0;
-        }
-        h2 {
-            text-align: center;  
-            font-size: 30px;  
+        h1, h2 {
+            text-align: center;
         }
     </style>
 </head>
@@ -49,38 +44,77 @@
     <div id="container">
         <h1>Coral Classifier</h1>
         <p class="quote">"Corals are the rainforests of the sea." - Sylvia Earle</p>
-        <form action="/" method="post" enctype="multipart/form-data">
-            <br><br>
-            <h2>Select an Image</h2>
-            <input type="file" id="file" name="file" accept="image/*" class="file-input">
-            <br><br>
-            <input type="submit" value="Predict">
-        </form>
+        
+        <h2>Select an Image</h2>
+        <input type="file" id="file" name="file" accept="image/*" class="file-input">
+        <br><br>
+        <button onclick="submitForm()">Predict</button>
+
         <div id="preview"></div>
         <br><br>
-        <h2 style="text-align: center;">Results</h2>
-        <p id="results">Prediction results will be shown here.</p>
+        
+        <h2>Results</h2>
+        <div id="results">
+            <p>Prediction results will be shown here.</p>
+        </div>
     </div>
+
     <script>
         document.querySelector('input[type="file"]').addEventListener('change', function(event) {
-            var preview = document.getElementById('preview');
-            var image = document.createElement('img');
+            const preview = document.getElementById('preview');
+            const image = new Image();
             image.src = URL.createObjectURL(event.target.files[0]);
 
-            // Set the preview div dimensions when the image loads
             image.onload = function() {
                 preview.style.width = this.width + 'px';
                 preview.style.height = this.height + 'px';
             };
 
-            // Remove any existing images from the preview div
             while (preview.firstChild) {
                 preview.firstChild.remove();
             }
 
             preview.appendChild(image);
             preview.style.display = 'block';
+
+            resetResults();  // Reset the results when a new file is selected
         });
+
+        function resetResults() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Prediction results will be shown here.</p>';
+        }
+
+        function submitForm() {
+            const formData = new FormData();
+            const fileInput = document.getElementById('file');
+            formData.append('file', fileInput.files[0]);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '';
+
+                if (data.predictions) {
+                    data.predictions.forEach(prediction => {
+                        const p = document.createElement('p');
+                        p.textContent = `Class: ${prediction.label}, Probability: ${prediction.prob.toFixed(4)}`;
+                        resultsDiv.appendChild(p);
+                    });
+                } else {
+                    const p = document.createElement('p');
+                    p.textContent = "Prediction results will be shown here.";
+                    resultsDiv.appendChild(p);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
     </script>
 </body>
 </html>
