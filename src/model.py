@@ -29,7 +29,7 @@ from src.utils.custom_metrics import recall_m, precision_m, f1_m
 logger = logging.getLogger(__name__)
 
 class CoralReefClassifier:
-    def __init__(self, root_dir, data_dir, image_dir, annotation_file, model_type, image_scale=0.2, augmentations=None, stopping_patience=10):
+    def __init__(self, root_dir, data_dir, image_dir, annotation_file, model_type, image_scale=0.2, augmentations=None, stopping_patience=10, use_augmentation=True):
         self.root_dir = root_dir
         self.data_dir = data_dir
         self.image_dir = image_dir
@@ -42,7 +42,8 @@ class CoralReefClassifier:
         self.x_pos = []
         self.y_pos = []
         self.model = None
-        self.stopping_patience=stopping_patience
+        self.stopping_patience = stopping_patience
+        self.use_augmentation = use_augmentation
 
         self.efficientnet_b0_weight = os.path.join(WEIGHT_DIR, "efficientnetb0_notop.h5")
         self.efficientnet_v2_b0_weight = os.path.join(WEIGHT_DIR, "efficientnetv2-b0_notop.h5")
@@ -52,7 +53,6 @@ class CoralReefClassifier:
         if augmentations is None:  # if no augmentations were given
             # use default augmentations
             augmentations = [
-                #A.RandomCrop(width=256, height=256),
                 A.HorizontalFlip(p=0.3),
                 A.VerticalFlip(p=0.3),
                 A.RandomBrightnessContrast(p=0.3),
@@ -127,7 +127,7 @@ class CoralReefClassifier:
 
         logger.info(f"Annotation file: {self.annotation_file}")
         logger.info(f"Loaded {self.unique_image_count} images with {len(self.image_paths)} annotations and {self.number_labels_to_train} labels\n")
-
+        logger.info(f"Use Augmentation: {self.use_augmentation}")
 
     def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size):
         num_batches_per_epoch = len(image_paths) // batch_size
@@ -167,7 +167,7 @@ class CoralReefClassifier:
                         image = cv2.resize(image, (224, 224))  # Make sure all images are resized to (224, 224)
                         
                         # Augment image, but only after first epoch
-                        if total_batches_generated > num_batches_per_epoch:
+                        if self.use_augmentation is True and total_batches_generated > num_batches_per_epoch:
                             augmented = self.image_augmenter(image=image)
                             image = augmented['image']
 
