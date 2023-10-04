@@ -2,14 +2,12 @@ import os
 import numpy as np
 import csv
 import cv2
-import json 
-import time 
+import sys
 import logging
 import tensorflow as tf
 
 from tensorflow.python.client import device_lib
 
-import sys
 ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", ".."))
 sys.path.insert(0, ROOT_DIR)
 
@@ -43,11 +41,13 @@ def create_label_mapping_from_csv(filename):
     
     return label_mapping
 
+
 def load_saved_model(model_path):
     return tf.keras.models.load_model(
         model_path,
         custom_objects={"recall_m": recall_m, "f1_m": f1_m, "precision_m": precision_m}                
     )
+
 
 def predict_coral_image(model, image_path, top_k=3):
     image = cv2.imread(image_path)
@@ -61,17 +61,13 @@ def predict_coral_image(model, image_path, top_k=3):
 
     return [(idx, predictions[idx]) for idx in top_indices]
 
+
 if __name__ == '__main__':
     label_mapping = create_label_mapping_from_csv(annotation_path)
-    
+
     # Load the saved model
     model = load_saved_model(model_path)
-
     top_predictions = predict_coral_image(model, image_path)
-
-    # Print out the predictions
-    #label_names = list(label_mapping.keys())
-    #label_indices = list(label_mapping.values())
 
     # Print out the predictions using label_mapping
     for idx, prob in top_predictions:
