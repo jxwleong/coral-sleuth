@@ -10,10 +10,10 @@ import cv2
 import json 
 import time 
 import logging
+import sys
 
 from tensorflow.python.client import device_lib
 
-import sys
 ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", ".."))
 sys.path.insert(0, ROOT_DIR)
 
@@ -22,6 +22,7 @@ from src.model import CoralReefClassifier
 from src.utils import logging_config, excel
 
 logger = logging.getLogger(__name__)
+
 
 def train_and_evaluate_models(
     annotation_filepath,
@@ -164,7 +165,6 @@ def continue_training_models(
     logger.info(f"Evaluation metrics in excel format saved: {excel_file}")
 
 
-
 if __name__ == "__main__":
     annotation_filename = "combined_annotations_remapped_merged_undersample_oversample_5k.csv"
     annotation_name = annotation_filename.split(".")[0]
@@ -176,7 +176,6 @@ if __name__ == "__main__":
             h5_model_filename
     )
    
-
     batch_size = 32
     epoch = 50
     additional_epochs = 50

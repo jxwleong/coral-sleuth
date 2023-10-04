@@ -3,7 +3,7 @@ import os
 import numpy as np
 import csv
 import cv2
-import json 
+import sys
 import time 
 import logging
 import re 
@@ -20,13 +20,14 @@ from PIL import Image
 from collections import Counter
 from datetime import datetime
 
-import sys
+
 ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), "..", ".."))
 sys.path.insert(0, ROOT_DIR)
 from config.path import ANNOTATION_DIR, DATA_DIR, IMAGE_DIR, WEIGHT_DIR, MODEL_DIR
 from src.utils.custom_metrics import recall_m, precision_m, f1_m
 
 logger = logging.getLogger(__name__)
+
 
 class CoralReefClassifier:
     def __init__(self, root_dir, data_dir, image_dir, annotation_file, model_type, image_scale=0.2, augmentations=None, stopping_patience=10, use_augmentation=True):
@@ -61,6 +62,7 @@ class CoralReefClassifier:
         
         self.image_augmenter = A.Compose(augmentations)
         self.load_data()
+
 
     def load_data(self):
         with open(self.annotation_file, 'r') as csvfile:
@@ -129,6 +131,7 @@ class CoralReefClassifier:
         logger.info(f"Loaded {self.unique_image_count} images with {len(self.image_paths)} annotations and {self.number_labels_to_train} labels\n")
         logger.info(f"Use Augmentation: {self.use_augmentation}")
 
+
     def data_generator(self, image_paths, labels, x_pos, y_pos, batch_size):
         num_batches_per_epoch = len(image_paths) // batch_size
         total_batches_generated = 0
@@ -163,7 +166,6 @@ class CoralReefClassifier:
                         y_max = min(height, y_center + half_height)
                         
                         image = image[y_min:y_max, x_min:x_max]
-
                         image = cv2.resize(image, (224, 224))  # Make sure all images are resized to (224, 224)
                         
                         # Augment image, but only after first epoch
@@ -228,7 +230,6 @@ class CoralReefClassifier:
                 recall_m, precision_m, f1_m
             ]
         )
-
 
 
     def train(self, batch_size, epochs):
